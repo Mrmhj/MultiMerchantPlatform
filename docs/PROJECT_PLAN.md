@@ -1,8 +1,8 @@
-# 多商户入驻电商平台 — 项目规划方案 v4.0
+# 多商户入驻电商平台 — 项目规划方案 v4.1
 
 > **文档路径**：`E:\MultiMerchantPlatform\docs\PROJECT_PLAN.md`
-> **更新日期**：2026-08-01
-> **版本**：v4.0（从 v3 调整而来）
+> **更新日期**：2026-08-02
+> **版本**：v4.1（从 v4.0 调整而来）
 
 ---
 
@@ -13,7 +13,8 @@
 | v1.0 | 2026-08-01 | 初始方案：Java 21 + Spring Cloud Alibaba + 普通电商 |
 | v2.0 | 2026-08-01 | 调整为 C#/.NET 8 + 多商户入驻平台 |
 | v3.0 | 2026-08-01 | 调整为 .NET 10 + 自封装MQ/日志 + 多ORM切换 + BI平台 |
-| **v4.0** | **2026-08-01** | **移除Docker依赖 + 新增压测/IM/邮件服务 + 多端支持 + 全部E盘 + 文档管理策略** |
+| v4.0 | 2026-08-01 | 移除Docker依赖 + 新增压测/IM/邮件服务 + 多端支持 + 全部E盘 + 文档管理策略 |
+| **v4.1** | **2026-08-02** | **前端技术栈全面调整为 Vue 3 全家桶**（Vue3 + Vite + TS + Element Plus + uni-app + Electron） |
 
 ### v4.0 具体变更项
 
@@ -24,6 +25,14 @@
 5. **新增多端支持** — Web（Next.js + Blazor）+ 移动端（.NET MAUI）+ 桌面端（.NET MAUI）
 6. **全部 E 盘** — 代码 `E:\MultiMerchantPlatform\src\`，文档 `E:\MultiMerchantPlatform\docs\`
 7. **文档管理策略** — 每次调整同步更新主文档 + 模块文档 + 变更记录
+
+### v4.1 具体变更项
+
+1. **Web 三端统一 Vue 3** — C端商城 / 商户端 / 平台管理后台全部改为 Vue 3.5 + Vite 8 + TypeScript 5.x + Element Plus 2.x（替代 Next.js 15 与 Blazor）
+2. **移动端改为 uni-app** — Vue 3 语法一套代码编译 iOS + Android（替代 .NET MAUI）
+3. **桌面端改为 Electron** — Vue 3 + WebView 打包 Windows + macOS 桌面应用（替代 .NET MAUI）
+4. **前端统一技术栈收益** — 五个端共享一套组件库 / 请求封装 / 状态管理 / DTO 契约，维护成本最低
+5. **配套库** — Pinia（状态）+ Vue Router 4（路由）+ Axios（请求）+ unplugin 自动导入 + ESLint + Prettier
 
 ---
 
@@ -128,12 +137,13 @@ E:\MultiMerchantPlatform\
 │   ├── gateways/                      #   API 网关
 │   │   └── api-gateway/               #     YARP 反向代理网关
 │   │
-│   ├── apps/                          #   前端应用
-│   │   ├── web-customer/              #     C端电商 (Next.js 15)
-│   │   ├── web-merchant/              #     商户端 (Next.js 15)
-│   │   ├── web-admin/                 #     平台管理后台 (Blazor + MudBlazor)
-│   │   ├── mobile-app/                #     移动端 (v4新增)
-│   │   └── desktop-app/               #     桌面端 (v4新增)
+│   ├── apps/                          #   前端应用（v4.1 统一 Vue 3）
+│   │   ├── shared/                    #     共享代码（DTO / API 客户端 / 组件）
+│   │   ├── web-customer/              #     C端电商 (Vue 3 + Vite + Element Plus)
+│   │   ├── web-merchant/              #     商户端 (Vue 3 + Vite + Element Plus)
+│   │   ├── web-admin/                 #     平台管理后台 (Vue 3 + Vite + Element Plus)
+│   │   ├── mobile-app/                #     移动端 uni-app (v4.1改) — Vue 3 语法，iOS + Android
+│   │   └── desktop-app/               #     桌面端 Electron (v4.1改) — Windows + macOS
 │   │
 │   └── AspireHost/                    #   .NET Aspire 编排宿主
 │       └── AspireHost.AppHost/        #     启动入口，编排所有服务
@@ -178,19 +188,27 @@ E:\MultiMerchantPlatform\
 | 实时通信 | SignalR | 10.0 | IM 服务 + 通知推送 |
 | 邮件 | MailKit | 4.x | SMTP 发送 + IMAP 接收 |
 
-### 前端技术栈
+### 前端技术栈（v4.1 全面调整）
 
 | 端 | 技术 | 版本 | 说明 |
 |----|------|------|------|
-| C端 Web | Next.js | 15.x | App Router + SSR |
-| C端 UI | Tailwind CSS + shadcn/ui | — | 现代化组件库 |
-| 商户端 Web | Next.js | 15.x | 商户管理后台 |
-| 平台管理后台 | Blazor Server | 10.0 | + MudBlazor 组件库 |
-| 移动端 | .NET MAUI | 10.0 | iOS + Android（v4新增） |
-| 桌面端 | .NET MAUI | 10.0 | Windows + macOS（v4新增） |
-| 移动端 UI | MAUI CommunityToolkit | — | + 自定义组件 |
+| 全端基础 | Vue 3（Composition API + `<script setup>`） | 3.5.x | 五端统一框架 |
+| 构建工具 | Vite | 8.x | 极速 HMR，Node 24 已满足 |
+| 类型安全 | TypeScript | 5.x | 严格模式 |
+| UI 组件库 | Element Plus | 2.x | 统一五端 UI（C端可 CSS 变量换肤） |
+| 状态管理 | Pinia | 3.x | 五端统一 |
+| 路由 | Vue Router | 4.x | Web 三端 |
+| HTTP 客户端 | Axios（统一封装 + 拦截器） | 1.x | JWT 注入 / 401 刷新 / 错误统一处理 |
+| 按需加载 | unplugin-auto-import + unplugin-vue-components | — | Element Plus 自动按需导入 |
+| 代码规范 | ESLint 9 + Prettier | — | 统一风格 |
+| C端 Web | Vue 3 + Vite + TS + Element Plus | — | 消费者商城 |
+| 商户端 Web | Vue 3 + Vite + TS + Element Plus | — | 商户管理后台 |
+| 平台管理后台 | Vue 3 + Vite + TS + Element Plus | — | 平台运营/审核/风控（原 Blazor 取消） |
+| 移动端 | uni-app（Vue 3 语法） | 4.x | iOS + Android 一套代码 |
+| 桌面端 | Electron + Vue 3 | 33.x | Windows + macOS 商户工作台 |
+| 多端共享 | `apps/shared/` | — | 共享 DTO、API 客户端、组件、Pinia store |
 
-### 多端架构设计
+### 多端架构设计（v4.1）
 
 ```
                     ┌─────────────────────────────────┐
@@ -205,16 +223,16 @@ E:\MultiMerchantPlatform\
           │          │         │          │          │
      ┌────▼───┐ ┌───▼────┐ ┌──▼───┐ ┌───▼────┐ ┌──▼─────┐
      │ C端Web │ │商户端Web│ │管理后台│ │ 移动端  │ │ 桌面端  │
-     │Next.js │ │Next.js │ │Blazor│ │ MAUI   │ │ MAUI   │
+     │  Vue3  │ │  Vue3  │ │ Vue3 │ │ uni-app│ │Electron│
      │(浏览器) │ │(浏览器) │ │(浏览器)│ │(iOS/安卓)│ │(Win/Mac)│
      └────────┘ └────────┘ └──────┘ └────────┘ └────────┘
 ```
 
 **多端共享策略**：
 - API 层统一：所有端通过同一个 YARP 网关访问后端微服务
-- DTO 契约共享：`BuildingBlocks.Core` 中定义所有 DTO，前端通过 OpenAPI 自动生成客户端
+- DTO 契约共享：`BuildingBlocks.Core` 中定义所有 DTO，前端通过 OpenAPI 自动生成 TS 客户端（`apps/shared/api/`）
 - 认证统一：JWT Token，所有端共享同一套身份认证
-- SignalR 多端推送：IM 消息、订单状态、物流更新等实时推送
+- SignalR 多端推送：Web 用 `@microsoft/signalr`，uni-app 用 `@microsoft/signalr`（H5）+ 原生封装（App），Electron 用 `@microsoft/signalr`
 
 ---
 
@@ -273,7 +291,7 @@ E:\MultiMerchantPlatform\
 │  └─────────────┘   └──────────────────┘ │
 │                                          │
 │  ┌─────────────────────────────────────┐ │
-│  │  Blazor Dashboard（内存/性能看板）    │ │
+│  │  Vue 3 + ECharts 看板（内存/性能）   │ │
 │  └─────────────────────────────────────┘ │
 └──────────────────────────────────────────┘
 ```
@@ -347,8 +365,8 @@ public class ChatHub : Hub
 ```
 
 **多端接入**：
-- Web 端：`@microsoft/signalr` npm 包
-- MAUI 端：`Microsoft.AspNetCore.SignalR.Client` NuGet 包
+- Web / Electron 端：`@microsoft/signalr` npm 包
+- uni-app 端：`@microsoft/signalr`（H5/小程序）+ 原生 WebSocket 封装（App 端）
 
 #### 3. email-service（邮件服务）
 
@@ -599,9 +617,11 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
 ---
 
-## 九、多端应用设计（v4 新增）
+## 九、多端应用设计（v4.1 全面调整）
 
-### 移动端（.NET MAUI）
+### 移动端（uni-app — Vue 3 语法）
+
+> **框架**：uni-app 4.x（Vue 3 + Vite 编译），一套代码编译 iOS / Android，`apps/mobile-app/`
 
 | 功能模块 | 说明 |
 |---------|------|
@@ -610,37 +630,48 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 | 商品详情 | SKU 选择 + 评价 + 详情页 |
 | 购物车 | 多商户分组 + 全选/单选 |
 | 订单 | 订单列表 + 详情 + 物流追踪 |
-| 支付 | 微信/支付宝调用 |
-| IM 聊天 | 客服聊天列表 + 聊天界面 |
+| 支付 | 微信/支付宝调用（uni 原生支付 API） |
+| IM 聊天 | 客服聊天列表 + 聊天界面（SignalR） |
 | 个人中心 | 订单状态入口 + 收藏 + 设置 |
 
-### 桌面端（.NET MAUI Windows）
+### 桌面端（Electron + Vue 3）
+
+> **框架**：Electron 33.x + Vue 3 + Vite + Element Plus，`apps/desktop-app/`，主进程 + 渲染进程分离
 
 | 功能模块 | 说明 |
 |---------|------|
 | 商户工作台 | 订单管理 + 商品管理 + 数据概览 |
-| 实时消息 | 客服聊天 + 订单通知 |
-| 数据报表 | 销售统计 + 库存报表 |
+| 实时消息 | 客服聊天 + 订单通知（SignalR） |
+| 数据报表 | 销售统计 + 库存报表（ECharts） |
 | 系统监控 | performance-service 看板（管理员） |
+| 本地能力 | 文件导出 / 打印 / 系统托盘（Electron main 进程） |
 
 ### 多端代码共享
 
 ```
 src/apps/
-├── shared/                    # 多端共享代码
-│   ├── models/                #   共享 DTO 模型
-│   ├── services/              #   API 客户端
-│   └── viewmodels/            #   共享 ViewModel
-├── mobile-app/                # 移动端
-│   ├── Platforms/
-│   │   ├── Android/
-│   │   ├── iOS/
-│   │   └── Windows/
-│   ├── Pages/                 #   页面（XAML）
-│   └── Resources/             #   样式、图片
-└── desktop-app/               # 桌面端
-    ├── Pages/                 #   页面（XAML）
-    └── Resources/
+├── shared/                    # 多端共享代码（npm 包 or pnpm workspace）
+│   ├── api/                   #   OpenAPI 生成的 TS 客户端（DTO + Axios）
+│   ├── components/            #   共享 Vue 组件（Element Plus 二次封装）
+│   ├── stores/                #   共享 Pinia store
+│   ├── composables/           #   共享组合式函数（useAuth / useCart / useSocket）
+│   └── styles/                #   主题变量（CSS 变量换肤）
+├── web-customer/              # C端商城（Vue 3 + Vite + TS + Element Plus）
+│   ├── src/
+│   │   ├── views/             #   页面（首页/详情/购物车/订单/支付）
+│   │   ├── router/
+│   │   └── main.ts
+├── web-merchant/              # 商户端（Vue 3 + Vite + TS + Element Plus）
+├── web-admin/                 # 平台管理后台（Vue 3 + Vite + TS + Element Plus）
+├── mobile-app/                # 移动端 uni-app
+│   ├── src/
+│   │   ├── pages/             #   页面（uni-app 路由）
+│   │   └── manifest.json      #   App 配置（iOS/Android）
+└── desktop-app/               # 桌面端 Electron
+    ├── electron/
+    │   ├── main/              #   主进程（窗口/托盘/本地文件）
+    │   └── preload/           #   预加载脚本
+    └── src/                   #   渲染进程（Vue 3 应用）
 ```
 
 ---
@@ -668,7 +699,7 @@ src/apps/
 | 6-7 | order-service（创建/拆单/状态机） | 订单系统 |
 | 7-8 | pay-service（支付/回调/退款） | 支付系统 |
 | 8 | stock-service（扣减/预占/回滚） | 库存系统 |
-| 9 | C端 Web 前端（Next.js） | C端商城可浏览下单 |
+| 9 | C端 Web 前端（Vue 3 + Vite + Element Plus） | C端商城可浏览下单 |
 
 ### Phase 2：辅助功能 + 多端（第 10-13 周）
 
@@ -678,8 +709,8 @@ src/apps/
 | 10-11 | promotion-service + review-service | 优惠券 + 评价 |
 | 11 | logistics-service + settlement-service | 物流 + 结算 |
 | 12 | **im-service**（即时通讯） | 聊天功能 |
-| 12-13 | 商户端 Web 前端 | 商户管理后台 |
-| 13 | **移动端 MAUI** 骨架 + 核心页面 | App 可运行 |
+| 12-13 | 商户端 Web 前端（Vue 3） | 商户管理后台 |
+| 13 | **移动端 uni-app** 骨架 + 核心页面 | App 可运行 |
 
 ### Phase 3：平台支撑（第 14-16 周）
 
@@ -688,8 +719,8 @@ src/apps/
 | 14 | **performance-service**（压测+内存监控） | 监控看板可用 |
 | 14 | risk-service（风控/反刷单） | 风控规则引擎 |
 | 15 | notification-service（通知中心） | 短信/站内信/Push |
-| 15-16 | **桌面端 MAUI** | 桌面应用可运行 |
-| 16 | **BI 分析管理平台**（Blazor + ECharts） | BI 看板 |
+| 15-16 | **桌面端 Electron** | 桌面应用可运行 |
+| 16 | **BI 分析管理平台**（Vue 3 + ECharts） | BI 看板 |
 
 ### Phase 4：高并发优化 + 压测（第 17-19 周）
 
@@ -745,13 +776,22 @@ E:\MultiMerchantPlatform\docs\
 ### CHANGELOG.md 格式
 
 ```markdown
+## [v4.1] - 2026-08-02
+
+### Changed
+- 前端技术栈全面调整为 Vue 3 全家桶：
+  - C端/商户端/管理后台：Next.js 15 / Blazor → Vue 3.5 + Vite 8 + TS 5.x + Element Plus 2.x
+  - 移动端：.NET MAUI → uni-app（Vue 3 语法，iOS + Android）
+  - 桌面端：.NET MAUI → Electron + Vue 3
+- 新增 apps/shared 共享层（OpenAPI TS 客户端 / 组件 / store / composables）
+
 ## [v4.0] - 2026-08-01
 
 ### Added
 - 新增 performance-service（压测+内存监控）
 - 新增 im-service（即时通讯）
 - 新增 email-service（邮件服务）
-- 新增多端支持（移动端 + 桌面端 MAUI）
+- 新增多端支持（移动端 + 桌面端）
 - 新增文档管理策略
 
 ### Changed

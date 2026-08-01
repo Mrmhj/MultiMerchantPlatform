@@ -13,7 +13,7 @@
 | 后端 | .NET 10 + ASP.NET Core + YARP + .NET Aspire |
 | ORM | EF Core 10 / SqlSugar / Dapper（可切换） |
 | 数据库 | SQL Server 2022 |
-| 前端 | Next.js 15 + Blazor + .NET MAUI |
+| 前端 | Vue 3.5 + Vite 8 + TypeScript + Element Plus + uni-app + Electron |
 | 消息队列 | 自封装 messaging-service |
 | 日志 | 自封装 logging-service |
 
@@ -24,7 +24,7 @@ src/
 ├── BuildingBlocks/     # 公共基础组件（8 个）
 ├── services/           # 微服务（21 个）
 ├── gateways/           # API 网关（YARP）
-├── apps/               # 前端应用（Web + MAUI）
+├── apps/               # 前端应用（Vue 3 五端 + shared 共享层）
 └── AspireHost/         # .NET Aspire 编排宿主
 ```
 

@@ -6,12 +6,12 @@
 
 | 文档 | 路径 | 状态 | 说明 |
 |------|------|------|------|
-| 项目方案 | `E:\MultiMerchantPlatform\docs\PROJECT_PLAN.md` | ✅ v4.0 | 总体规划，每次方案调整更新 |
+| 项目方案 | `E:\MultiMerchantPlatform\docs\PROJECT_PLAN.md` | ✅ v4.1 | 总体规划，每次方案调整更新 |
 | 架构设计 | `E:\MultiMerchantPlatform\docs\ARCHITECTURE.md` | 📝 待编写 | 技术架构详细设计 |
 | API 规范 | `E:\MultiMerchantPlatform\docs\API_SPEC.md` | 📝 待编写 | 所有微服务 API 接口文档 |
 | 数据库设计 | `E:\MultiMerchantPlatform\docs\DATABASE.md` | 📝 待编写 | 所有数据库表结构设计 |
 | 部署指南 | `E:\MultiMerchantPlatform\docs\DEPLOYMENT.md` | 📝 待编写 | 部署与运维操作指南 |
-| 变更记录 | `E:\MultiMerchantPlatform\docs\CHANGELOG.md` | ✅ v4.0 | 每次调整追加记录 |
+| 变更记录 | `E:\MultiMerchantPlatform\docs\CHANGELOG.md` | ✅ v4.1 | 每次调整追加记录 |
 | 文档索引 | `E:\MultiMerchantPlatform\docs\DOC_INDEX.md` | ✅ 本文档 | 文档路径汇总 |
 
 ## 模块文档
@@ -60,11 +60,11 @@
 
 | 模块 | 路径 | 状态 | 说明 |
 |------|------|------|------|
-| web-customer | `docs/modules/web-customer.md` | 📝 待编写 | C端 Web (Next.js) |
-| web-merchant | `docs/modules/web-merchant.md` | 📝 待编写 | 商户端 Web (Next.js) |
-| web-admin | `docs/modules/web-admin.md` | 📝 待编写 | 管理后台 (Blazor) |
-| mobile-app | `docs/modules/mobile-app.md` | 📝 待编写 | 移动端 (v4新增) |
-| desktop-app | `docs/modules/desktop-app.md` | 📝 待编写 | 桌面端 (v4新增) |
+| web-customer | `docs/modules/web-customer.md` | 📝 待编写 | C端 Web (Vue 3 + Element Plus) |
+| web-merchant | `docs/modules/web-merchant.md` | 📝 待编写 | 商户端 Web (Vue 3 + Element Plus) |
+| web-admin | `docs/modules/web-admin.md` | 📝 待编写 | 管理后台 (Vue 3 + Element Plus) |
+| mobile-app | `docs/modules/mobile-app.md` | 📝 待编写 | 移动端 uni-app (v4.1改) |
+| desktop-app | `docs/modules/desktop-app.md` | 📝 待编写 | 桌面端 Electron (v4.1改) |
 
 ### 报告
 

@@ -1,5 +1,18 @@
 # 变更记录
 
+## [v4.1] - 2026-08-02
+
+### Changed
+- 前端技术栈全面调整为 **Vue 3 全家桶**（用户确认，替代 Next.js 15 + Blazor + MAUI）：
+  - C端 Web / 商户端 Web / 平台管理后台：**Vue 3.5 + Vite 8 + TypeScript 5.x + Element Plus 2.x**（原 Next.js 15 / Blazor + MudBlazor）
+  - 移动端：**.NET MAUI → uni-app**（Vue 3 语法，一套代码编译 iOS + Android）
+  - 桌面端：**.NET MAUI → Electron + Vue 3**（Windows + macOS 商户工作台）
+- 统一配套库：Pinia 状态管理 + Vue Router 4 + Axios 请求封装 + unplugin 按需自动导入 + ESLint/Prettier
+- 新增 `apps/shared/` 前端共享层：OpenAPI 自动生成 TS 客户端 / 共享组件 / Pinia store / composables
+- performance-service 看板与 BI 平台改 Vue 3 + ECharts（原 Blazor）
+
+---
+
 ## [v4.0] - 2026-08-01
 
 ### Added
