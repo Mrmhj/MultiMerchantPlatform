@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\gateways\ApiGateway\ApiGateway.csproj" />
     <ProjectReference Include="..\..\services\messaging-service\MessagingService.csproj" />
+    <ProjectReference Include="..\..\services\logging-service\LoggingService.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

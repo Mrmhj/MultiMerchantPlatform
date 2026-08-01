@@ -1,5 +1,28 @@
 # 变更记录
 
+## [v4.3] - 2026-08-02
+
+### Added
+- 开发完成 **logging-service**（自封装日志管理微服务，Phase 0 Week 2）：
+  - 批量接收日志（POST /api/logs/batch）+ SQL Server 持久化（MMP_Infra · Logs 表）
+  - 检索：按服务/级别/关键字/时间范围分页查询
+  - 统计：级别分布 / Top 服务 / 时间趋势（小时/天）/ 错误率
+  - 索引设计：Timestamp / (Service,Timestamp) / (Level,Timestamp) / TraceId
+  - 网关路由：`/api/logs/**`、`/api/log-stats/**` → 8011
+- 完善 **BuildingBlocks.Logging** 客户端：
+  - 缓冲上限保护（10,000 条，防内存溢出）
+  - 上报请求 10 秒超时
+- 新增模块文档 `docs/modules/logging-service.md`
+
+### Verified
+- 全量编译 0 警告 0 错误（Release）
+- 冒烟测试通过：健康检查 → 批量上报 5 条 → 查询/过滤 → 级别分布 → Top 服务 → 错误率 40% → 趋势
+
+### Notes
+- 本机存在 2 个提权遗留进程（MessagingService.exe PID 4202324 及其 dotnet 宿主 PID 1496，冒烟测试遗留）锁定 Debug 输出目录，需管理员权限结束或重启电脑后恢复 Debug 构建；Release 构建不受影响
+
+---
+
 ## [v4.2] - 2026-08-02
 
 ### Added

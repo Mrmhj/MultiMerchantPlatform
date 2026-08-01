@@ -11,10 +11,14 @@ var apiGateway = builder.AddProject<Projects.ApiGateway>("api-gateway")
 var messagingService = builder.AddProject<Projects.MessagingService>("messaging-service")
     .WithEndpoint(name: "http", port: 8010, targetPort: 8080);
 
-// 网关转发消息服务接口
-apiGateway.WithReference(messagingService);
+// Phase 0: 自封装日志管理 (port 8011)
+var loggingService = builder.AddProject<Projects.LoggingService>("logging-service")
+    .WithEndpoint(name: "http", port: 8011, targetPort: 8080);
 
-// - logging-service (port 8011) — Phase 0 Week 2 后半
+// 网关转发基础设施服务接口
+apiGateway.WithReference(messagingService);
+apiGateway.WithReference(loggingService);
+
 // - email-service (port 8015) — Phase 0 Week 3
 
 // ── 核心业务服务 (Phase 1) ──
