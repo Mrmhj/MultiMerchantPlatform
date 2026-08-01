@@ -43,7 +43,7 @@
 | .NET SDK 10 | ✅ 已就绪 | 10.0.302 | 含 ASP.NET Core 10.0.10 |
 | Node.js 24 | ✅ 已就绪 | v24.14.0 | 位于 `D:\Soft\nodejs\node.exe` |
 | Git | ✅ 已就绪 | 2.54.0 | — |
-| SQL Server | ✅ 已就绪 | sqlcmd 15.0 | 本地实例可用 |
+| SQL Server | ✅ 已就绪 | SQL Server 2025 (17.0.1000.7) | 本地实例，sa/123456，库名 `MMP_*` |
 | NuGet 源 | ✅ 已就绪 | nuget.org + VS Offline | — |
 | Redis | ⚠️ 需安装 | 未检测到 | **不使用 Docker**，改为 Memurai（Redis Windows 兼容版）或 In-Memory |
 | Docker | ❌ 不再需要 | v4 移除依赖 | 全部本地化运行 |
@@ -178,7 +178,7 @@ E:\MultiMerchantPlatform\
 | 微服务编排 | .NET Aspire | 10.0 | 本地开发编排，无 Docker |
 | API 网关 | YARP | 2.0 | 微软官方反向代理 |
 | ORM | EF Core 10 / SqlSugar / Dapper | 可切换 | `BuildingBlocks.Data` 统一抽象 |
-| 数据库 | SQL Server | 2022 | 本地实例已就绪 |
+| 数据库 | SQL Server | 2025 | 本机实例（sa 账户），库名前缀 `MMP_` |
 | 缓存 | IMemoryCache / Memurai | — | 无 Docker，开发用 In-Memory |
 | 消息队列 | **自封装 messaging-service** | — | SQL Server 持久化，不依赖 RabbitMQ |
 | 日志 | **自封装 logging-service** | — | 不依赖 Seq/ELK |
@@ -448,8 +448,8 @@ public class ChatHub : Hub
   "Data": {
     "DefaultOrm": "EfCore",  // "EfCore" | "SqlSugar" | "Dapper"
     "Connections": {
-      "Default": "Server=localhost;Database=MMP_Main;Trusted_Connection=True;TrustServerCertificate=True",
-      "Order": "Server=localhost;Database=MMP_Order;Trusted_Connection=True;TrustServerCertificate=True",
+      "Default": "Server=localhost;Database=MMP_Main;User Id=sa;Password=123456;TrustServerCertificate=True",
+      "Order": "Server=localhost;Database=MMP_Order;User Id=sa;Password=123456;TrustServerCertificate=True",
       "ExternalERP": "Server=192.168.1.100;Database=ERP;User Id=sa;Password=xxx"
     }
   }

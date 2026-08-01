@@ -176,7 +176,7 @@ public class OrderService(IMessagePublisher publisher)
 ```json
 {
   "ConnectionStrings": {
-    "MessagingDb": "Server=localhost;Database=MMP_Infra;Trusted_Connection=True;TrustServerCertificate=True"
+    "MessagingDb": "Server=localhost;Database=MMP_Infra;User Id=sa;Password=123456;TrustServerCertificate=True"
   },
   "Messaging": {
     "PollIntervalSeconds": 5,        // 分发器轮询间隔
