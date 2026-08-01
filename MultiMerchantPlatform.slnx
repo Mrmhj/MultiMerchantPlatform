@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/AspireHost/">
+    <Project Path="src/AspireHost/AspireHost.AppHost/AspireHost.AppHost.csproj" />
+    <Project Path="src/AspireHost/AspireHost.ServiceDefaults/AspireHost.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/BuildingBlocks.Cache/BuildingBlocks.Cache.csproj" />
+    <Project Path="src/BuildingBlocks/BuildingBlocks.Communication/BuildingBlocks.Communication.csproj" />
+    <Project Path="src/BuildingBlocks/BuildingBlocks.Core/BuildingBlocks.Core.csproj" />
+    <Project Path="src/BuildingBlocks/BuildingBlocks.Data/BuildingBlocks.Data.csproj" />
+    <Project Path="src/BuildingBlocks/BuildingBlocks.Logging/BuildingBlocks.Logging.csproj" />
+    <Project Path="src/BuildingBlocks/BuildingBlocks.Messaging/BuildingBlocks.Messaging.csproj" />
+    <Project Path="src/BuildingBlocks/BuildingBlocks.MultiTenant/BuildingBlocks.MultiTenant.csproj" />
+    <Project Path="src/BuildingBlocks/BuildingBlocks.Security/BuildingBlocks.Security.csproj" />
+  </Folder>
+  <Folder Name="/src/gateways/">
+    <Project Path="src/gateways/ApiGateway/ApiGateway.csproj" />
+  </Folder>
+</Solution>
