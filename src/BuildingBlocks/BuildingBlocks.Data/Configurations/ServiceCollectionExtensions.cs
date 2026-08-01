@@ -1,14 +1,18 @@
+using BuildingBlocks.Data.Abstractions;
+using BuildingBlocks.Data.Implementations;
 using BuildingBlocks.Data.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 namespace BuildingBlocks.Data.Configurations;
 
+/// <summary>
+/// 数据层 DI 注册扩展 — 支持 EF Core / SqlSugar / Dapper 切换（Strategy 模式）。
+/// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// 添加数据层 — 支持 EF Core / SqlSugar / Dapper 切换。
+    /// 添加数据层 — 按 OrmType 配置自动选择仓储策略。
     /// </summary>
     public static IServiceCollection AddDataLayer(
         this IServiceCollection services,
@@ -23,25 +27,28 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(options);
         services.Configure<DataOptions>(configuration.GetSection(sectionName));
 
-        // 注册连接切换器
-        services.AddSingleton<Abstractions.IDbConnectionSwitcher, Implementations.DbConnectionSwitcher>();
+        // 注册连接切换器（Factory 模式）
+        services.AddSingleton<IDbConnectionSwitcher, DbConnectionSwitcher>();
 
-        // 按 ORM 类型注册仓储
+        // 注册 TimeProvider（用于可测试的时间依赖）
+        services.AddSingleton<TimeProvider>(TimeProvider.System);
+
+        // 按 ORM 类型注册仓储策略
         switch (options.DefaultOrm)
         {
             case OrmType.EfCore:
-                // 各服务自行注册 DbContext，这里只注册仓储工厂
-                services.AddScoped(typeof(Abstractions.IRepository<>), typeof(Implementations.EfRepository<>));
+                services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+                services.AddScoped(typeof(ISpecificationRepository<>), typeof(EfSpecificationRepository<>));
                 break;
 
             case OrmType.SqlSugar:
                 // SqlSugar 仓储由各服务模块注册时配置
-                // services.AddScoped(typeof(Abstractions.IRepository<>), typeof(Implementations.SqlSugarRepository<>));
+                // services.AddScoped(typeof(IRepository<>), typeof(SqlSugarRepository<>));
                 break;
 
             case OrmType.Dapper:
                 // Dapper 仓储由各服务模块注册时配置
-                // services.AddScoped(typeof(Abstractions.IRepository<>), typeof(Implementations.DapperRepository<>));
+                // services.AddScoped(typeof(IRepository<>), typeof(DapperRepository<>));
                 break;
         }
 
@@ -49,19 +56,23 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// 注册 EF Core DbContext（各微服务调用）。
+    /// 注册 EF Core DbContext + 工作单元（各微服务调用）。
     /// </summary>
-    public static IServiceCollection AddEfCoreDbContext<TContext>(
+    public static IServiceCollection AddEfCore<TContext>(
         this IServiceCollection services,
         string connectionString,
-        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+        Action<DbContextOptionsBuilder>? configure = null)
         where TContext : DbContext
     {
         services.AddDbContext<TContext>(options =>
         {
             options.UseSqlServer(connectionString);
             options.EnableSensitiveDataLogging(false);
-        }, lifetime);
+            configure?.Invoke(options);
+        });
+
+        // 注册工作单元
+        services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 
         return services;
     }

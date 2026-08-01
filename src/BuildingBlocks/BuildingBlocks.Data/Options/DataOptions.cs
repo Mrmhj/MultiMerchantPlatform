@@ -3,20 +3,20 @@ namespace BuildingBlocks.Data.Options;
 /// <summary>
 /// 数据层配置选项。
 /// </summary>
-public class DataOptions
+public record DataOptions
 {
     /// <summary>默认 ORM 类型</summary>
-    public OrmType DefaultOrm { get; set; } = OrmType.EfCore;
+    public OrmType DefaultOrm { get; init; } = OrmType.EfCore;
 
     /// <summary>数据库连接字典</summary>
-    public Dictionary<string, string> Connections { get; set; } = new();
+    public Dictionary<string, string> Connections { get; init; } = [];
 
     /// <summary>默认连接名称</summary>
-    public string DefaultConnectionName { get; set; } = "Default";
+    public string DefaultConnectionName { get; init; } = "Default";
 }
 
 /// <summary>
-/// 支持的 ORM 类型。
+/// 支持的 ORM 类型（Strategy 模式 — 可切换的数据访问策略）。
 /// </summary>
 public enum OrmType
 {

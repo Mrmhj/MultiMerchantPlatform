@@ -6,5 +6,5 @@ namespace BuildingBlocks.Core.Entities;
 public abstract class MultiTenantEntity : Entity
 {
     /// <summary>所属商户 ID</summary>
-    public Guid MerchantId { get; set; }
+    public required Guid MerchantId { get; set; }
 }

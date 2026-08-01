@@ -6,46 +6,29 @@ using Microsoft.Extensions.DependencyInjection;
 namespace BuildingBlocks.Communication;
 
 /// <summary>
-/// HTTP 服务客户端实现。
+/// HTTP 服务客户端实现（Strategy 模式 — HTTP 策略）。
 /// </summary>
-public class HttpServiceClient : IServiceClient
+public class HttpServiceClient(HttpClient httpClient) : IServiceClient
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient _httpClient = httpClient;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
-    public HttpServiceClient(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
     public async Task<Result<T>> GetAsync<T>(string path, CancellationToken ct = default)
-    {
-        var response = await _httpClient.GetAsync(path, ct);
-        return await HandleResponse<T>(response, ct);
-    }
+        => await HandleResponseAsync<T>(await _httpClient.GetAsync(path, ct), ct);
 
     public async Task<Result<T>> PostAsync<T>(string path, object body, CancellationToken ct = default)
-    {
-        var response = await _httpClient.PostAsJsonAsync(path, body, JsonOptions, ct);
-        return await HandleResponse<T>(response, ct);
-    }
+        => await HandleResponseAsync<T>(await _httpClient.PostAsJsonAsync(path, body, JsonOptions, ct), ct);
 
     public async Task<Result<T>> PutAsync<T>(string path, object body, CancellationToken ct = default)
-    {
-        var response = await _httpClient.PutAsJsonAsync(path, body, JsonOptions, ct);
-        return await HandleResponse<T>(response, ct);
-    }
+        => await HandleResponseAsync<T>(await _httpClient.PutAsJsonAsync(path, body, JsonOptions, ct), ct);
 
     public async Task<Result<T>> DeleteAsync<T>(string path, CancellationToken ct = default)
-    {
-        var response = await _httpClient.DeleteAsync(path, ct);
-        return await HandleResponse<T>(response, ct);
-    }
+        => await HandleResponseAsync<T>(await _httpClient.DeleteAsync(path, ct), ct);
 
-    private static async Task<Result<T>> HandleResponse<T>(HttpResponseMessage response, CancellationToken ct)
+    private static async Task<Result<T>> HandleResponseAsync<T>(HttpResponseMessage response, CancellationToken ct)
     {
         if (!response.IsSuccessStatusCode)
         {
@@ -64,7 +47,7 @@ public class HttpServiceClient : IServiceClient
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// 注册服务客户端 — 按服务名注册 HttpClient，支持 HTTP/gRPC 切换。
+    /// 注册服务客户端 — 按服务名注册，支持 HTTP/gRPC 切换（Strategy 模式）。
     /// </summary>
     public static IServiceCollection AddServiceClient(
         this IServiceCollection services,
@@ -80,9 +63,7 @@ public static class ServiceCollectionExtensions
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
         }
-
-        // gRPC 实现在需要时添加
-        // if (protocol == CommunicationProtocol.Grpc) { ... }
+        // gRPC 策略在需要时添加: services.AddGrpcClient<IServiceClient, GrpcServiceClient>(...)
 
         return services;
     }

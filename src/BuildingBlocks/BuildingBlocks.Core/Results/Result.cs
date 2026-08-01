@@ -1,9 +1,9 @@
 namespace BuildingBlocks.Core.Results;
 
 /// <summary>
-/// 操作结果 — 统一返回成功/失败，避免异常控制流。
+/// 操作结果 — 统一返回成功/失败，避免异常控制流（Result 模式）。
 /// </summary>
-public class Result
+public record Result
 {
     public bool IsSuccess { get; }
     public string? Error { get; }
@@ -25,7 +25,7 @@ public class Result
 /// <summary>
 /// 带返回值的操作结果。
 /// </summary>
-public class Result<T> : Result
+public record Result<T> : Result
 {
     private readonly T? _value;
 

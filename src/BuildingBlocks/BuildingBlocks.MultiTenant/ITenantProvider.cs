@@ -5,24 +5,19 @@ namespace BuildingBlocks.MultiTenant;
 /// </summary>
 public interface ITenantProvider
 {
-    /// <summary>当前请求的商户 ID</summary>
     Guid? CurrentMerchantId { get; }
-
-    /// <summary>当前用户 ID</summary>
     Guid? CurrentUserId { get; }
-
-    /// <summary>是否为平台管理员</summary>
     bool IsPlatformAdmin { get; }
 }
 
 /// <summary>
 /// 租户上下文 — 请求作用域内保存商户信息。
 /// </summary>
-public class TenantContext : ITenantProvider
+public record TenantContext : ITenantProvider
 {
-    public Guid? CurrentMerchantId { get; set; }
-    public Guid? CurrentUserId { get; set; }
-    public bool IsPlatformAdmin { get; set; }
+    public Guid? CurrentMerchantId { get; init; }
+    public Guid? CurrentUserId { get; init; }
+    public bool IsPlatformAdmin { get; init; }
 
     public static TenantContext Empty => new();
 }

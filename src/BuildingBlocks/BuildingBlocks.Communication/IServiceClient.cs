@@ -3,20 +3,13 @@ using BuildingBlocks.Core.Results;
 namespace BuildingBlocks.Communication;
 
 /// <summary>
-/// 服务间通信客户端接口 — HTTP / gRPC 可切换。
+/// 服务间通信客户端接口 — HTTP / gRPC 可切换（Strategy 模式）。
 /// </summary>
 public interface IServiceClient
 {
-    /// <summary>GET 请求</summary>
     Task<Result<T>> GetAsync<T>(string path, CancellationToken ct = default);
-
-    /// <summary>POST 请求</summary>
     Task<Result<T>> PostAsync<T>(string path, object body, CancellationToken ct = default);
-
-    /// <summary>PUT 请求</summary>
     Task<Result<T>> PutAsync<T>(string path, object body, CancellationToken ct = default);
-
-    /// <summary>DELETE 请求</summary>
     Task<Result<T>> DeleteAsync<T>(string path, CancellationToken ct = default);
 }
 
@@ -34,7 +27,7 @@ public enum CommunicationProtocol
 /// </summary>
 public record ServiceEndpoint
 {
-    public string ServiceName { get; init; } = string.Empty;
-    public string BaseUrl { get; init; } = string.Empty;
+    public required string ServiceName { get; init; }
+    public required string BaseUrl { get; init; }
     public CommunicationProtocol Protocol { get; init; } = CommunicationProtocol.Http;
 }

@@ -5,30 +5,28 @@ using Microsoft.Extensions.Logging;
 namespace BuildingBlocks.Logging;
 
 /// <summary>
-/// 中心化日志 Provider — 异步批量上报到 logging-service。
+/// 中心化日志 Provider — 异步批量上报到 logging-service（Observer 模式）。
 /// </summary>
-public class CentralizedLoggerProvider : ILoggerProvider
+public sealed class CentralizedLoggerProvider : ILoggerProvider
 {
+    private readonly string _serviceName;
+    private readonly HttpClient _httpClient;
     private readonly ConcurrentDictionary<string, CentralizedLogger> _loggers = new();
     private readonly ConcurrentQueue<LogEntry> _buffer = new();
-    private readonly string _serviceName;
     private readonly Timer _flushTimer;
-    private readonly HttpClient _httpClient;
 
     public CentralizedLoggerProvider(string serviceName, HttpClient httpClient)
     {
         _serviceName = serviceName;
         _httpClient = httpClient;
-        _flushTimer = new Timer(FlushBatch, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
+        _flushTimer = new Timer(_ => _ = FlushBatchAsync(), null,
+            TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
     }
 
     public ILogger CreateLogger(string categoryName)
-    {
-        return _loggers.GetOrAdd(categoryName,
-            name => new CentralizedLogger(_serviceName, name, _buffer));
-    }
+        => _loggers.GetOrAdd(categoryName, name => new CentralizedLogger(_serviceName, name, _buffer));
 
-    private async void FlushBatch(object? state)
+    private async Task FlushBatchAsync()
     {
         if (_buffer.IsEmpty) return;
 
@@ -53,7 +51,6 @@ public class CentralizedLoggerProvider : ILoggerProvider
     public void Dispose()
     {
         _flushTimer.Dispose();
-        _httpClient.Dispose();
         _loggers.Clear();
     }
 }
@@ -61,19 +58,8 @@ public class CentralizedLoggerProvider : ILoggerProvider
 /// <summary>
 /// 中心化日志记录器。
 /// </summary>
-public class CentralizedLogger : ILogger
+public sealed class CentralizedLogger(string serviceName, string category, ConcurrentQueue<LogEntry> buffer) : ILogger
 {
-    private readonly string _serviceName;
-    private readonly string _category;
-    private readonly ConcurrentQueue<LogEntry> _buffer;
-
-    public CentralizedLogger(string serviceName, string category, ConcurrentQueue<LogEntry> buffer)
-    {
-        _serviceName = serviceName;
-        _category = category;
-        _buffer = buffer;
-    }
-
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
 
     public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Information;
@@ -82,13 +68,13 @@ public class CentralizedLogger : ILogger
     {
         if (!IsEnabled(logLevel)) return;
 
-        _buffer.Enqueue(new LogEntry
+        buffer.Enqueue(new LogEntry
         {
-            ServiceName = _serviceName,
+            ServiceName = serviceName,
             Level = logLevel.ToString(),
             Message = formatter(state, exception),
             Exception = exception?.ToString(),
-            Category = _category,
+            Category = category,
             Timestamp = DateTime.UtcNow
         });
     }

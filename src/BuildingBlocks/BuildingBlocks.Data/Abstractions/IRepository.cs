@@ -1,10 +1,11 @@
 using BuildingBlocks.Core.Entities;
 using BuildingBlocks.Core.Results;
+using BuildingBlocks.Core.Specifications;
 
 namespace BuildingBlocks.Data.Abstractions;
 
 /// <summary>
-/// 统一仓储接口 — 业务层只依赖此接口，底层 ORM 可切换。
+/// 统一仓储接口 — 业务层只依赖此接口，底层 ORM 可切换（Repository 模式）。
 /// </summary>
 public interface IRepository<T> where T : Entity
 {
@@ -18,9 +19,17 @@ public interface IRepository<T> where T : Entity
 }
 
 /// <summary>
-/// 支持规格模式的仓储接口。
+/// 支持规格模式的仓储接口（Specification 模式）。
+/// 业务层通过 ISpecification 封装查询条件，仓储负责翻译执行。
 /// </summary>
-public interface IRepository<T, TSpec> : IRepository<T> where T : Entity
+public interface ISpecificationRepository<T> : IRepository<T> where T : Entity
 {
-    Task<IReadOnlyList<T>> FindAsync(TSpec specification, CancellationToken ct = default);
+    /// <summary>按规格查询</summary>
+    Task<IReadOnlyList<T>> FindAsync(ISpecification<T> specification, CancellationToken ct = default);
+
+    /// <summary>按规格分页查询</summary>
+    Task<PagedResult<T>> FindPagedAsync(ISpecification<T> specification, int page, int pageSize, CancellationToken ct = default);
+
+    /// <summary>按规格计数</summary>
+    Task<int> CountAsync(ISpecification<T> specification, CancellationToken ct = default);
 }

@@ -1,9 +1,10 @@
 using System.Collections.Concurrent;
+using BuildingBlocks.Core.Events;
 
 namespace BuildingBlocks.Messaging;
 
 /// <summary>
-/// In-Memory 消息发布者 — 开发环境使用。
+/// In-Memory 消息发布者 — 开发环境使用（Strategy 模式 — 内存策略）。
 /// 生产环境替换为 messaging-service 的 HTTP API 客户端。
 /// </summary>
 public class InMemoryMessagePublisher : IMessagePublisher
@@ -11,7 +12,7 @@ public class InMemoryMessagePublisher : IMessagePublisher
     private readonly ConcurrentQueue<MessageEnvelope> _queue = new();
 
     public Task PublishAsync<T>(T message, string? routingKey = null, CancellationToken ct = default)
-        where T : Core.Events.IIntegrationEvent
+        where T : IIntegrationEvent
     {
         var envelope = MessageEnvelope.Create(message, routingKey);
         _queue.Enqueue(envelope);

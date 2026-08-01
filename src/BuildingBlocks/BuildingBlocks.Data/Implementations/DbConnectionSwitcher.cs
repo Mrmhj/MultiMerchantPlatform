@@ -1,23 +1,18 @@
 using System.Data;
-using Microsoft.Data.SqlClient;
 using BuildingBlocks.Data.Options;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Data.Implementations;
 
 /// <summary>
-/// 数据库连接切换器实现 — 支持按名称切换连接，方便对接外部系统。
+/// 数据库连接切换器实现 — 支持按名称切换连接（Factory 模式）。
 /// </summary>
-public class DbConnectionSwitcher : Abstractions.IDbConnectionSwitcher
+public class DbConnectionSwitcher(IOptions<DataOptions> options) : Abstractions.IDbConnectionSwitcher
 {
-    private readonly Dictionary<string, string> _connectionStrings;
-    private readonly string _defaultName;
-
-    public DbConnectionSwitcher(IOptions<DataOptions> options)
-    {
-        _connectionStrings = new Dictionary<string, string>(options.Value.Connections, StringComparer.OrdinalIgnoreCase);
-        _defaultName = options.Value.DefaultConnectionName;
-    }
+    private readonly Dictionary<string, string> _connectionStrings
+        = new(options.Value.Connections, StringComparer.OrdinalIgnoreCase);
+    private readonly string _defaultName = options.Value.DefaultConnectionName;
 
     public IDbConnection GetConnection(string name)
     {
@@ -27,13 +22,8 @@ public class DbConnectionSwitcher : Abstractions.IDbConnectionSwitcher
         return new SqlConnection(connStr);
     }
 
-    public IDbConnection GetDefaultConnection()
-    {
-        return GetConnection(_defaultName);
-    }
+    public IDbConnection GetDefaultConnection() => GetConnection(_defaultName);
 
     public void RegisterConnection(string name, string connectionString)
-    {
-        _connectionStrings[name] = connectionString;
-    }
+        => _connectionStrings[name] = connectionString;
 }

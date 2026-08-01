@@ -42,3 +42,18 @@ public interface IQueryHandler<in TQuery, TResult>
 /// 无返回值标记。
 /// </summary>
 public record Unit;
+
+/// <summary>
+/// 中介者接口 — 统一调度命令和查询（Mediator 模式）。
+/// 各服务通过 IMediator 发送命令/查询，由中介者路由到对应 Handler。
+/// </summary>
+public interface IMediator
+{
+    /// <summary>发送命令</summary>
+    Task<TResult> SendAsync<TCommand, TResult>(TCommand command, CancellationToken ct = default)
+        where TCommand : ICommand<TResult>;
+
+    /// <summary>发送查询</summary>
+    Task<TResult> QueryAsync<TQuery, TResult>(TQuery query, CancellationToken ct = default)
+        where TQuery : IQuery<TResult>;
+}

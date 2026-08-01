@@ -18,7 +18,8 @@ public interface IDbConnectionSwitcher
 }
 
 /// <summary>
-/// 工作单元接口 — 管理事务。
+/// 工作单元接口 — 管理事务边界（Unit of Work 模式）。
+/// 确保一组操作要么全部成功，要么全部回滚。
 /// </summary>
 public interface IUnitOfWork : IDisposable
 {

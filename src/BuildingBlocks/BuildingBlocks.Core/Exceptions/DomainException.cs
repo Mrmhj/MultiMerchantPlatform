@@ -1,45 +1,35 @@
 namespace BuildingBlocks.Core.Exceptions;
 
-public class DomainException : Exception
+/// <summary>
+/// 领域异常基类 — 携带错误码，区别于系统异常。
+/// </summary>
+public class DomainException(string message, string errorCode = "DOMAIN_ERROR", Exception? innerException = null)
+    : Exception(message, innerException)
 {
-    public string ErrorCode { get; }
-
-    public DomainException(string message, string errorCode = "DOMAIN_ERROR")
-        : base(message)
-    {
-        ErrorCode = errorCode;
-    }
-
-    public DomainException(string message, Exception innerException, string errorCode = "DOMAIN_ERROR")
-        : base(message, innerException)
-    {
-        ErrorCode = errorCode;
-    }
+    public string ErrorCode { get; } = errorCode;
 }
 
-public class NotFoundException : DomainException
+/// <summary>
+/// 实体未找到异常。
+/// </summary>
+public class NotFoundException(string entityName, object key)
+    : DomainException($"{entityName} 未找到，Key: {key}", "NOT_FOUND")
 {
-    public NotFoundException(string entityName, object key)
-        : base($"{entityName} 未找到，Key: {key}", "NOT_FOUND")
-    {
-    }
 }
 
-public class ValidationException : DomainException
+/// <summary>
+/// 数据验证异常。
+/// </summary>
+public class ValidationException(IDictionary<string, string[]> errors)
+    : DomainException("数据验证失败", "VALIDATION_ERROR")
 {
-    public IDictionary<string, string[]> Errors { get; }
-
-    public ValidationException(IDictionary<string, string[]> errors)
-        : base("数据验证失败", "VALIDATION_ERROR")
-    {
-        Errors = errors;
-    }
+    public IDictionary<string, string[]> Errors { get; } = errors;
 }
 
-public class ConcurrencyException : DomainException
+/// <summary>
+/// 并发冲突异常。
+/// </summary>
+public class ConcurrencyException(string message)
+    : DomainException(message, "CONCURRENCY_CONFLICT")
 {
-    public ConcurrencyException(string message)
-        : base(message, "CONCURRENCY_CONFLICT")
-    {
-    }
 }
