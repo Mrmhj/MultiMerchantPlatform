@@ -1,5 +1,32 @@
 # 变更记录
 
+## [v4.2] - 2026-08-02
+
+### Added
+- 开发完成 **messaging-service**（自封装消息队列微服务，Phase 0 Week 2）：
+  - Outbox 模式：消息先落库（SQL Server · MMP_Infra）再异步投递，不丢消息
+  - 发布订阅：REST 发布 + 后台分发器（BackgroundService 轮询）+ HTTP 回调订阅者
+  - 指数退避重试（5s ×2，上限 5 分钟）+ 超限自动转死信 + 手动重试
+  - 幂等去重：Idempotency 表记录 (MessageId, ConsumerUrl)，防止重复投递
+  - REST API：发布/批量/状态查询/手动重试/死信管理 + 订阅管理 + 健康检查
+  - 网关路由：`/api/messages/**`、`/api/subscriptions/**`、`/api/health/**` → 8010
+- 扩展 **BuildingBlocks.Messaging**：
+  - `HttpMessagePublisher`：通过 HTTP 调 messaging-service 发布（Strategy — HTTP 策略）
+  - `MessageConsumer<T>`：订阅者消费者基类（反序列化 + 业务处理 + 消费结果）
+  - `MessageBusOptions` + `AddHttpMessageBus()/AddInMemoryMessageBus()` DI 注册
+- 新增模块文档 `docs/modules/messaging-service.md`（API / 订阅者接入 / 配置 / 验证结果）
+
+### Changed
+- `Directory.Packages.props`：Microsoft.Data.SqlClient 5.2.2 → 6.1.1（EF Core 10 依赖要求）
+- AspireHost 注册 messaging-service（端口 8010）
+- 解决方案新增第 12 个项目 MessagingService
+
+### Verified
+- 全量编译 0 警告 0 错误
+- 冒烟测试通过：健康检查 → 发布 → 订阅 → 后台投递回调 200 → 消息终态 Published
+
+---
+
 ## [v4.1] - 2026-08-02
 
 ### Changed

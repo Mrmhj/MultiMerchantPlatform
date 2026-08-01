@@ -25,7 +25,7 @@
 
     <!-- Dapper -->
     <PackageVersion Include="Dapper" Version="2.1.35" />
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.1" />
 
     <!-- YARP 网关 -->
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.2.0" />

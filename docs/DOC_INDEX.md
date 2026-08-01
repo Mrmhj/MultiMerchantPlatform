@@ -26,7 +26,7 @@
 | order-service | `docs/modules/order-service.md` | 📝 待编写 | P0 |
 | pay-service | `docs/modules/pay-service.md` | 📝 待编写 | P0 |
 | stock-service | `docs/modules/stock-service.md` | 📝 待编写 | P0 |
-| messaging-service | `docs/modules/messaging-service.md` | 📝 待编写 | P0 |
+| messaging-service | `docs/modules/messaging-service.md` | ✅ 已完成 (v4.2) | P0 |
 | logging-service | `docs/modules/logging-service.md` | 📝 待编写 | P0 |
 
 ### P1 支撑服务
