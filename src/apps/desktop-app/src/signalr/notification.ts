@@ -2,16 +2,18 @@ import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signal
 import type { Announcement } from '../api/announcements'
 import type { NotificationItem } from '../api/notifications'
 
-// SignalR 通知客户端 — 连接网关 /hub/notification（WebSocket 不能带 Authorization 头，
+// SignalR 通知客户端 — 连接通知 Hub（WebSocket 不能带 Authorization 头，
 // 令牌经 query access_token 传递，与后端 JwtBearer OnMessageReceived 约定一致）
+// 开发：/hub/notification 经 Vite 代理；生产（Electron file://）：.env.production 注入完整地址
 let connection: HubConnection | null = null
+const hubBase = import.meta.env.VITE_HUB_BASE || '/hub/notification'
 
 /** 建立通知实时通道（登录后调用） */
 export function connectNotificationHub(token: string): HubConnection {
   if (connection) return connection
 
   connection = new HubConnectionBuilder()
-    .withUrl(`/hub/notification?access_token=${encodeURIComponent(token)}`)
+    .withUrl(`${hubBase}?access_token=${encodeURIComponent(token)}`)
     .withAutomaticReconnect()
     .configureLogging(LogLevel.Warning)
     .build()

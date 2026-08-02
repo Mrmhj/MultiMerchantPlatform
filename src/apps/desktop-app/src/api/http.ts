@@ -2,9 +2,10 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '../router'
 
-// Axios 统一封装：开发环境经 Vite 代理 / 打包后走同源网关配置，请求自动携带 JWT + X-Merchant-Id
+// Axios 统一封装：开发环境经 Vite 代理；生产构建（Electron file://）用 .env.production 注入的完整地址
+// baseURL 请求自动携带 JWT + X-Merchant-Id
 const http = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE || '/api',
   timeout: 20000,
 })
 
