@@ -61,7 +61,7 @@
 
 | 模块 | 路径 | 状态 | 说明 |
 |------|------|------|------|
-| web-customer | `docs/modules/web-customer.md` | 📝 待编写 | C端 Web (Vue 3 + Element Plus) |
+| web-customer | `docs/modules/web-customer.md` | ✅ 已完成 (v5.4) | C端 Web (Vue 3 + Element Plus) |
 | web-merchant | `docs/modules/web-merchant.md` | 📝 待编写 | 商户端 Web (Vue 3 + Element Plus) |
 | web-admin | `docs/modules/web-admin.md` | 📝 待编写 | 管理后台 (Vue 3 + Element Plus) |
 | mobile-app | `docs/modules/mobile-app.md` | 📝 待编写 | 移动端 uni-app (v4.1改) |

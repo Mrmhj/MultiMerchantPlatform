@@ -1,5 +1,20 @@
 # 变更记录
 
+## [v5.4] - 2026-08-02
+
+### Added
+- **Phase 1 Week 9：开发完成 C 端 Web 商城（web-customer）**：
+  - 项目骨架：Vue 3.5.40 + Vite 8.2.0 + TS 5 + Element Plus 2.14.3 + Pinia + Vue Router + Axios 封装（JWT 注入/401 跳登录/错误提示）
+  - 页面：首页（商品网格）/ 商品详情（SKU 选择+数量）/ 登录 / 注册（注册即登录）/ 确认订单（下单+自动支付）/ 我的订单（列表+详情+取消/支付）
+  - Vite dev 代理 → YARP 网关（8000），全链路联调通过
+  - **product-service 新增 C 端公开查询接口**（GET /api/products/public 列表+详情，无鉴权，仅在售）
+- 新增模块文档 `docs/modules/web-customer.md`
+
+### Verified
+- 前端构建成功（Vite 8）；端到端验证：公开商品列表 → 注册/登录 → 下单（预占库存）→ 支付 → 订单 Paid → 库存扣减
+
+---
+
 ## [v5.3] - 2026-08-02
 
 ### Added
