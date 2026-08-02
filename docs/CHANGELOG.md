@@ -1,6 +1,26 @@
 # 变更记录
 
-## [v5.4] - 2026-08-02
+## [v5.5] - 2026-08-02
+
+### Added
+- **Phase 2 Week 10：cart-service（8007 购物车）**：
+  - 单表 CartItem（买家 UserId 隔离，同 SKU 自动合并数量，1-999）
+  - API：加购/列表（含选中合计）/改量/选中/删除/清空，全接口 JWT 鉴权
+  - MMP_Cart 库 + 网关 `/api/cart/**` 直通路由
+- **Phase 2 Week 10：search-service（8008 商品搜索）**：
+  - 商品搜索索引（ProductId 唯一 upsert），关键词/分类/价格区间 + 分页，仅在售
+  - 内部接口 upsert/remove（X-Internal-Key），product-service 创建/更新/上下架自动同步（失败不阻塞）
+  - MMP_Search 库 + 网关 `/api/search/**` 直通路由
+- **配套改动**：merchant-service 新增内部查询接口（查商户名）；product-service 新增 Merchant/Search 客户端（命名 HttpClient 区分，修复多客户端注册覆盖）
+- 新增模块文档 `docs/modules/cart-service.md`、`docs/modules/search-service.md`
+
+### Verified
+- 全量编译 0 警告 0 错误（22 项目）
+- 购物车：加购/合并（1+2=3）/改量/选中合计/买家隔离/删除/清空全通过
+- 搜索：索引同步（创建/更新/上下架）/关键词/价格过滤/在售过滤/内部密钥 401 全通过
+- 商户名跨服务同步（product → merchant → search）验证通过
+
+
 
 ### Added
 - **Phase 1 Week 9：开发完成 C 端 Web 商城（web-customer）**：

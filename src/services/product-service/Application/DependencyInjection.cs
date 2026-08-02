@@ -1,3 +1,4 @@
+using BuildingBlocks.Communication;
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.MultiTenant;
 using BuildingBlocks.Security;
@@ -35,6 +36,27 @@ public static class ProductServiceDependencyInjection
         // 中介者 + CQRS 处理器
         services.AddMediator();
         services.AddCqrsHandlers(typeof(CreateCategoryCommandHandler).Assembly);
+
+        // 商户服务客户端（查询商户名，X-Internal-Key 默认头）
+        var merchantBaseUrl = configuration["Services:MerchantService:BaseUrl"] ?? "http://localhost:8002";
+        var searchBaseUrl = configuration["Services:SearchService:BaseUrl"] ?? "http://localhost:8008";
+        var internalKey = configuration["Internal:Key"] ?? string.Empty;
+        services.AddHttpClient<IServiceClient, HttpServiceClient>("merchant", client =>
+        {
+            client.BaseAddress = new Uri(merchantBaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(10);
+            if (!string.IsNullOrEmpty(internalKey))
+                client.DefaultRequestHeaders.Add("X-Internal-Key", internalKey);
+        });
+        services.AddHttpClient<IServiceClient, HttpServiceClient>("search", client =>
+        {
+            client.BaseAddress = new Uri(searchBaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(10);
+            if (!string.IsNullOrEmpty(internalKey))
+                client.DefaultRequestHeaders.Add("X-Internal-Key", internalKey);
+        });
+        services.AddScoped<MerchantServiceClient>();
+        services.AddScoped<SearchServiceClient>();
 
         return services;
     }

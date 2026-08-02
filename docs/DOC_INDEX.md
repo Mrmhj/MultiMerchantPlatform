@@ -35,8 +35,8 @@
 
 | 模块 | 路径 | 状态 | 优先级 |
 |------|------|------|--------|
-| cart-service | `docs/modules/cart-service.md` | 📝 待编写 | P1 |
-| search-service | `docs/modules/search-service.md` | 📝 待编写 | P1 |
+| cart-service | `docs/modules/cart-service.md` | ✅ 已完成 (v5.5) | P1 (Phase 2 Week 10) |
+| search-service | `docs/modules/search-service.md` | ✅ 已完成 (v5.5) | P1 (Phase 2 Week 10) |
 | promotion-service | `docs/modules/promotion-service.md` | 📝 待编写 | P1 |
 | review-service | `docs/modules/review-service.md` | 📝 待编写 | P1 |
 | logistics-service | `docs/modules/logistics-service.md` | 📝 待编写 | P1 |

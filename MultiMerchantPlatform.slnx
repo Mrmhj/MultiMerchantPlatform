@@ -18,6 +18,7 @@
     <Project Path="src/gateways/ApiGateway/ApiGateway.csproj" />
   </Folder>
   <Folder Name="/src/services/">
+    <Project Path="src/services/cart-service/CartService.csproj" />
     <Project Path="src/services/email-service/EmailService.csproj" />
     <Project Path="src/services/identity-service/IdentityService.csproj" />
     <Project Path="src/services/logging-service/LoggingService.csproj" />
@@ -26,6 +27,7 @@
     <Project Path="src/services/order-service/OrderService.csproj" />
     <Project Path="src/services/pay-service/PayService.csproj" />
     <Project Path="src/services/product-service/ProductService.csproj" />
+    <Project Path="src/services/search-service/SearchService.csproj" />
     <Project Path="src/services/stock-service/StockService.csproj" />
   </Folder>
 </Solution>
