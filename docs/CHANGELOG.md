@@ -1,5 +1,27 @@
 # 变更记录
 
+## [v5.0] - 2026-08-02
+
+### Added
+- **Phase 1 Week 6-7：开发完成 order-service（订单微服务，端口 8004）**：
+  - **多商户拆单**：跨商户订单自动按商户拆为子单（Order → SubOrder×N → OrderItem 快照）
+  - 订单状态机：Pending→Paid→Shipped→Completed/Cancelled；子单全部完成主单自动完成
+  - 买家接口（我的订单/详情/取消/支付确认）+ 商户接口（子单列表/发货/完成，X-Merchant-Id）
+  - 数据库：MMP_Order 库（Orders / SubOrders / OrderItems，商品价格快照）
+  - 网关路由：`/api/order/**` → 8004
+  - 延续规范：Mediator + CQRS + 充血模型（拆单逻辑内聚 Order.Create）+ 全注解 + Swagger Bearer
+- 新增模块文档 `docs/modules/order-service.md`
+
+### Verified
+- 全量编译 0 警告 0 错误（Release，18 个项目）
+- 冒烟全通过：跨商户拆单（2 商户 3 商品，金额 120.3）→ 支付 → 发货 → 完成 → 主单自动 Completed；取消保护；Swagger 8 接口
+
+### Notes
+- **Bug 修复**：子单完成时主单 TryComplete 误判——EF Core 关系修复（relationship fixup）用不完整子单集合判断，须 `Include(o => o.SubOrders)` 加载全部子单
+- 下单支付为模拟确认，pay-service（Week 7-8）接入后替换
+
+---
+
 ## [v4.9] - 2026-08-02
 
 ### Added
