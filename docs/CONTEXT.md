@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v5.9 · 2026-08-02 · 提交 <本次提交后回填> · 工作区已提交干净
+> 版本对应：v5.9 · 2026-08-02 · 提交 df07235 · 工作区已提交干净
 
 ---
 
@@ -40,7 +40,7 @@
 
 ## 三、当前进度
 
-- **Phase 2 Week 11 已完成**：logistics-service + settlement-service（提交 <本次提交后回填>）
+- **Phase 2 Week 11 已完成**：logistics-service + settlement-service（提交 df07235）
 - **Phase 2 Week 10-11 已完成**：review-service（提交 d90447d）
 - **Phase 2 Week 10-11 已完成**：promotion-service（提交 a83aa99）
 - **Phase 2 Week 10 已完成**：cart-service + search-service（提交 c5512d7）
