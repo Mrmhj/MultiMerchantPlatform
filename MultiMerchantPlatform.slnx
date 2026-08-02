@@ -26,5 +26,6 @@
     <Project Path="src/services/order-service/OrderService.csproj" />
     <Project Path="src/services/pay-service/PayService.csproj" />
     <Project Path="src/services/product-service/ProductService.csproj" />
+    <Project Path="src/services/stock-service/StockService.csproj" />
   </Folder>
 </Solution>

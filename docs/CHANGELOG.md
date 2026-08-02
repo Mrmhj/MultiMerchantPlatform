@@ -1,5 +1,26 @@
 # 变更记录
 
+## [v5.2] - 2026-08-02
+
+### Added
+- **Phase 1 Week 8：开发完成 stock-service（库存微服务，端口 8006）**：
+  - 库存模型：总库存 / 预占 / 可用（可用=总-预占，防超卖）
+  - 商户管理：创建 / 列表 / 详情 / 补货 / 流水审计（X-Merchant-Id 多租户）
+  - **内部接口**：预占（下单）/ 确认扣减（支付）/ 释放回滚（取消），X-Internal-Key 校验，success/error 结构
+  - 数据库：MMP_Stock 库（StockItems / StockTransactions）+ 网关 `/api/stock/**` → 8006
+  - 延续规范：Mediator + CQRS + 充血实体 + 全注解 + Swagger Bearer
+- 新增模块文档 `docs/modules/stock-service.md`
+
+### Verified
+- 全量编译 0 警告 0 错误（Release，20 个项目）
+- 冒烟全通过：创建100 → 预占30(可用70) → 预占超量保护 → 扣减20(total80) → 释放10 → 补货50(total130) → 密钥401 → 流水5条 → Swagger 8 接口
+
+### Notes
+- 订单联动（下单预占/支付扣减/取消回滚）内部接口已就绪，Phase 1 收尾统一接入
+- Internal.Key 与 order-service 约定一致
+
+---
+
 ## [v5.1] - 2026-08-02
 
 ### Added
