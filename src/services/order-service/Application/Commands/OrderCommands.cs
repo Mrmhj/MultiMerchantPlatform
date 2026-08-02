@@ -88,3 +88,23 @@ public sealed class MarkOrderPaidCommandHandler(
         return OrderMapper.ToResponse(order);
     }
 }
+
+/// <summary>内部支付确认命令（pay-service 回调，不校验买家身份，X-Internal-Key 在网关/Controller 层校验）</summary>
+public sealed record MarkOrderPaidInternalCommand(Guid OrderId) : ICommand<OrderResponse>;
+
+/// <summary>内部支付确认命令处理器</summary>
+public sealed class MarkOrderPaidInternalCommandHandler(OrderDbContext db) : ICommandHandler<MarkOrderPaidInternalCommand, OrderResponse>
+{
+    /// <inheritdoc />
+    public async Task<OrderResponse> HandleAsync(MarkOrderPaidInternalCommand command, CancellationToken ct = default)
+    {
+        var order = await db.Orders
+            .Include(o => o.SubOrders).ThenInclude(s => s.Items)
+            .FirstOrDefaultAsync(o => o.Id == command.OrderId, ct)
+            ?? throw new NotFoundException("订单", command.OrderId);
+
+        order.MarkPaid();
+        await db.SaveChangesAsync(ct);
+        return OrderMapper.ToResponse(order);
+    }
+}

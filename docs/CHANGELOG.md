@@ -1,5 +1,27 @@
 # 变更记录
 
+## [v5.1] - 2026-08-02
+
+### Added
+- **Phase 1 Week 7-8：开发完成 pay-service（支付微服务，端口 8005）**：
+  - 支付单状态机：Pending → Success/Failed → Refunded（同订单仅一笔待支付）
+  - 模拟支付（simulate 渠道，后续可切真实渠道 Strategy 扩展点）+ 退款
+  - **首次服务间同步调用落地**：支付成功经 IServiceClient 回调 order-service `/pay-internal`（X-Internal-Key 校验），订单自动变 Paid
+  - order-service 新增内部支付确认端点（InternalOrdersController + MarkOrderPaidInternalCommand）
+  - 数据库：MMP_Pay 库 Payments 表 + 网关 `/api/pay/**` → 8005
+  - 延续规范：Mediator + CQRS + 充血实体 + 全注解 + Swagger Bearer
+- 新增模块文档 `docs/modules/pay-service.md`
+
+### Verified
+- 全量编译 0 警告 0 错误（Release，19 个项目）
+- 冒烟全通过：创建订单 → 创建支付单 → 模拟支付 → **订单跨服务自动 Paid** → 退款 → 重复支付保护 → Swagger 5 接口
+
+### Notes
+- 跨服务调用：命名 HttpClient 默认头携带 X-Internal-Key；回调失败不阻塞支付（日志补偿）
+- Internal.Key 需与 order-service 一致（配置约定）
+
+---
+
 ## [v5.0] - 2026-08-02
 
 ### Added

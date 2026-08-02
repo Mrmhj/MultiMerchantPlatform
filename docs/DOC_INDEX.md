@@ -25,7 +25,7 @@
 | merchant-service | `docs/modules/merchant-service.md` | ✅ 已完成 (v4.8) | P0 (Phase 1 Week 4-5) |
 | product-service | `docs/modules/product-service.md` | ✅ 已完成 (v4.9) | P0 (Phase 1 Week 5-6) |
 | order-service | `docs/modules/order-service.md` | ✅ 已完成 (v5.0) | P0 (Phase 1 Week 6-7) |
-| pay-service | `docs/modules/pay-service.md` | 📝 待编写 | P0 |
+| pay-service | `docs/modules/pay-service.md` | ✅ 已完成 (v5.1) | P0 (Phase 1 Week 7-8) |
 | stock-service | `docs/modules/stock-service.md` | 📝 待编写 | P0 |
 | messaging-service | `docs/modules/messaging-service.md` | ✅ 已完成 (v4.2) | P0 |
 | logging-service | `docs/modules/logging-service.md` | ✅ 已完成 (v4.3) | P0 |
