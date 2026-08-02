@@ -20,4 +20,9 @@ public sealed class NotificationDispatcher(IHubContext<NotificationHub, INotific
     /// <param name="unreadCount">最新未读数</param>
     public Task NotifyUnreadAsync(Guid userId, int unreadCount)
         => hubContext.Clients.User(userId.ToString()).UnreadCountChanged(unreadCount);
+
+    /// <summary>向全部在线连接广播新公告（离线用户下次登录从列表接口拉取）</summary>
+    /// <param name="announcement">公告 DTO</param>
+    public Task BroadcastAnnouncementAsync(AnnouncementResponse announcement)
+        => hubContext.Clients.All.ReceiveAnnouncement(announcement);
 }

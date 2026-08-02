@@ -723,8 +723,8 @@ src/apps/
 |----|------|------|
 | 14 | **performance-service**（压测+内存监控） | 监控看板可用 ✅ v6.3 |
 | 14 | **risk-service**（风控/反刷单） | 风控规则引擎 ✅ v6.4 |
-| 15 | **notification-service**（通知中心） | 短信/站内信/Push ✅ v6.5 |
-| 15-16 | **桌面端 Electron** | 桌面应用可运行 |
+| 15 | **notification-service**（通知中心） | 短信/站内信/Push ✅ v6.5；公告广播 ✅ v6.6 |
+| 15-16 | **桌面端 Electron** | 商户工作台可运行 ✅ v6.6 |
 | 16 | **BI 分析管理平台**（Vue 3 + ECharts） | BI 看板 |
 
 ### Phase 4：高并发优化 + 压测（第 17-19 周）

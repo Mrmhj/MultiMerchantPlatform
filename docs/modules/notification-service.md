@@ -114,6 +114,30 @@ Controller → IMediator → ICommandHandler / IQueryHandler → Domain 实体�
 | RetryCount / MaxRetryCount | int | 重试计数与上限 |
 | LastError / SentAt | — | 错误信息 / 推送时间 |
 
+### Announcements — 平台公告（v6.6 新增，广播模型）
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| Title | nvarchar(200) | 标题（1-200 字符） |
+| Content | nvarchar(5000) | 正文（1-5000 字符） |
+| Category | int | 分类：System=1 / Operation=2 / Maintenance=3 |
+| PublisherUserId | uniqueidentifier | 发布者用户 ID（平台 admin） |
+| PublisherName | nvarchar(100) | 发布者名称（JWT UniqueName = 登录邮箱） |
+| Status | int | Draft=0（预留）/ Published=1 / Offline=2 |
+| PublishedAt / OfflineAt | datetime2? | 发布时间 / 下线时间 |
+
+索引：`(Status, PublishedAt)` 列表倒序、`(Status, Category, PublishedAt)` 分类筛选。
+与站内信（一对一复制到收件箱）互补：**公告一对多广播，不复制到用户收件箱**，已读状态惰性记录。
+
+### AnnouncementReads — 公告已读记录（用户维度）
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| AnnouncementId + UserId | 复合主键 | 公告 ID + 用户 ID（唯一，重复标记幂等） |
+| ReadAt | datetime2 | 已读时间 |
+
+索引：`UserId`（未读数按用户统计）。未读 = 已发布公告中无已读记录的公告数（下线公告不计入）。
+
 ---
 
 ## 四、API 概览
@@ -127,6 +151,17 @@ Controller → IMediator → ICommandHandler / IQueryHandler → Domain 实体�
 | POST | `/api/notifications/{id}/read` | 标记单条已读（非本人 404） |
 | POST | `/api/notifications/read-all` | 全部标记已读 |
 | DELETE | `/api/notifications/{id}` | 删除单条（软删除） |
+
+### 公告接口（v6.6 新增）
+
+| 方法 | 路径 | 权限 | 说明 |
+|------|------|------|------|
+| POST | `/api/notifications/announcements` | admin | 发布公告（创建即发布，SignalR 全量广播） |
+| POST | `/api/notifications/announcements/{id}/offline` | admin | 下线公告（下线后用户不可见，未读不计入） |
+| GET | `/api/notifications/announcements` | 登录 | 公告分页（category 过滤，含当前用户已读状态） |
+| GET | `/api/notifications/announcements/unread-count` | 登录 | 公告未读数（顶栏角标） |
+| GET | `/api/notifications/announcements/{id}` | 登录 | 公告详情（未发布/已下线 → 400 ANNOUNCEMENT_NOT_AVAILABLE） |
+| POST | `/api/notifications/announcements/{id}/read` | 登录 | 标记已读（幂等 upsert） |
 
 ### 内部接口（X-Internal-Key）
 
@@ -150,7 +185,7 @@ Controller → IMediator → ICommandHandler / IQueryHandler → Domain 实体�
 ### 实时通道
 
 - **Hub**：`/hub/notification`（WebSocket，`?access_token=<jwt>` 携带令牌）
-- **服务端 → 客户端**：`ReceiveNotification(NotificationResponse)`、`UnreadCountChanged(int)`
+- **服务端 → 客户端**：`ReceiveNotification(NotificationResponse)`、`UnreadCountChanged(int)`、`ReceiveAnnouncement(AnnouncementResponse)`
 - **网关**：`/api/notifications/{**catch-all}` + `/hub/notification/{**catch-all}` → notification-cluster (8019)
 
 ---
@@ -194,6 +229,9 @@ curl -X POST http://localhost:8019/api/notifications/internal/sms \
 
 - **短信/Push 为 DryRun 模拟**：本地无真实网关，仅落库标记 Sent；接入生产需在 `SmsSender.SendAsync` /
   `PushSender.SendAsync` 中实现第三方调用（阿里云/腾讯云短信、极光/个推/APNs/FCM），失败抛异常自动转 Failed/DeadLetter 状态机
+  （**生产网关接入方案暂缓**，本阶段仅交付内部公告 + 内部邮件；外部短信/Push 后续按需接入）
+- **公告为广播模型**：不复制到用户收件箱，已读状态惰性写入 AnnouncementReads；发布时经 SignalR `Clients.All`
+  广播给在线用户，离线用户下次登录从列表接口拉取
 - **站内信为平台级用户维度**：不按商户隔离（通知属于用户个人收件箱），`MerchantId` 仅为业务归属标记，
   平台级通知为空；商户维度查询走 `(MerchantId, IsDeleted, CreatedAt)` 索引
 - **保留期限**：`Notification.RetentionDays`（默认 180 天），过期站内信可由归档任务清理（当前未启用）

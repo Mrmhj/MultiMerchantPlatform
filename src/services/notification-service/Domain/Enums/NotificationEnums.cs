@@ -78,3 +78,33 @@ public enum PushStatus
     /// <summary>超出重试次数，转入死信</summary>
     DeadLetter = 3,
 }
+
+/// <summary>
+/// 公告分类 — 平台公告的归类，供桌面端/管理端按分类筛选。
+/// </summary>
+public enum AnnouncementCategory
+{
+    /// <summary>系统公告（平台规则/协议变更等）</summary>
+    System = 1,
+
+    /// <summary>运营公告（营销活动/功能上线等）</summary>
+    Operation = 2,
+
+    /// <summary>维护公告（停机维护/升级通知等）</summary>
+    Maintenance = 3,
+}
+
+/// <summary>
+/// 公告状态 — 平台公告生命周期。
+/// </summary>
+public enum AnnouncementStatus
+{
+    /// <summary>草稿（预留，当前发布接口直接发布）</summary>
+    Draft = 0,
+
+    /// <summary>已发布（用户可见）</summary>
+    Published = 1,
+
+    /// <summary>已下线（不再展示，保留审计）</summary>
+    Offline = 2,
+}

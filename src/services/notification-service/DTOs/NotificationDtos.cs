@@ -185,3 +185,50 @@ public sealed record NotificationTemplateResponse
     /// <summary>创建时间</summary>
     public DateTime CreatedAt { get; init; }
 }
+
+/// <summary>发布公告请求（平台 admin）</summary>
+public sealed record PublishAnnouncementRequest
+{
+    /// <summary>公告标题（1-200 字符）</summary>
+    public string Title { get; init; } = string.Empty;
+
+    /// <summary>公告正文（1-5000 字符）</summary>
+    public string Content { get; init; } = string.Empty;
+
+    /// <summary>公告分类（默认系统公告）</summary>
+    public AnnouncementCategory Category { get; init; } = AnnouncementCategory.System;
+}
+
+/// <summary>公告响应（列表 / 详情 / 实时推送共用；isRead 为当前用户已读状态）</summary>
+public sealed record AnnouncementResponse
+{
+    /// <summary>公告 ID</summary>
+    public Guid Id { get; init; }
+
+    /// <summary>标题</summary>
+    public string Title { get; init; } = string.Empty;
+
+    /// <summary>正文</summary>
+    public string Content { get; init; } = string.Empty;
+
+    /// <summary>公告分类</summary>
+    public AnnouncementCategory Category { get; init; }
+
+    /// <summary>发布者名称</summary>
+    public string PublisherName { get; init; } = string.Empty;
+
+    /// <summary>公告状态</summary>
+    public AnnouncementStatus Status { get; init; }
+
+    /// <summary>发布时间</summary>
+    public DateTime? PublishedAt { get; init; }
+
+    /// <summary>当前用户是否已读</summary>
+    public bool IsRead { get; init; }
+
+    /// <summary>当前用户已读时间</summary>
+    public DateTime? ReadAt { get; init; }
+
+    /// <summary>创建时间</summary>
+    public DateTime CreatedAt { get; init; }
+}

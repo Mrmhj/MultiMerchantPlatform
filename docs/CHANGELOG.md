@@ -1,8 +1,38 @@
 # 变更记录
 
-## [v6.5] - 2026-08-02
+## [v6.6] - 2026-08-02
 
 ### Added
+- **Phase 3 Week 15-16：桌面端 Electron（desktop-app，商户工作台）**：
+  - **工程骨架**：Electron 33 + Vue 3.5 + Vite 8 + TS + Element Plus + Pinia + Vue Router（hash 模式）+ Axios + SignalR；主进程 `electron/main.ts`（BrowserWindow 1280×800 / dev 加载 Vite(5176) / 生产 loadFile dist / 外链走系统浏览器 / contextIsolation + sandbox），preload 最小暴露 `window.desktop.appInfo`；`electron-builder` 打包 Win（nsis）+ Mac（dmg）
+  - **平台公告中心**：列表（分类筛选/分页/未读状态）、详情、标记已读、顶栏未读角标；SignalR 新公告实时角标+1
+  - **内部邮件中心**：写邮件、收件箱（状态过滤/分页）、详情（含正文）、失败手动重试 —— email-service DryRun 落库，不真实外发 SMTP
+  - **通知收件箱**：站内信列表 / 单条已读 / 全部已读 / 删除 / 未读角标；SignalR `ReceiveNotification`/`UnreadCountChanged` 实时同步
+  - **工作台首页**：最新公告/通知/邮件三栏概览
+  - **范围边界**：短信 / Push 真实网关、外部 SMTP **暂缓**（保持 DryRun 扩展点），仅交付内部公告 + 内部邮件
+- **notification-service 新增公告模块（Announcement，v6.6）**：
+  - **广播模型**：公告一对多不复制到用户收件箱（与站内信一对一互补），已读状态惰性记录
+  - 实体：`Announcement`（标题 1-200 / 正文 1-5000 / 分类 System|Operation|Maintenance / 状态 Draft|Published|Offline / 发布者 / 发布时间）+ `AnnouncementRead`（AnnouncementId+UserId 复合唯一，幂等已读）
+  - 接口：`POST /api/notifications/announcements`（admin 发布，创建即发布 + SignalR `Clients.All` 广播）、`POST {id}/offline`（admin 下架，下线后不可见且未读不计入）、`GET`（分类筛选/分页/含已读状态）、`GET unread-count`、`GET {id}`（未发布/下线 → 400）、`POST {id}/read`（幂等 upsert）
+  - 迁移 `AddAnnouncements`（Announcements / AnnouncementReads 两表 + 索引）
+- **email-service 响应补强**：`EmailResponse` 增加 `Body` 字段（内部邮件中心展示正文；列表/详情均返回）
+- **网关路由修复**：email-service / email-templates 移除 PathPattern 前缀剥离 —— 控制器自带 `api/[controller]` 前缀，`/api/emails`（无子路径）此前被转发成 `/api` → 404
+- 新增模块文档 `docs/modules/desktop-app.md`；notification-service 模块文档补公告章节；冒烟脚本 `tests/smoke-announcement.sh` + `tests/smoke-desktop-app.sh`
+
+### Verified
+- 全量编译 0 CS 警告 0 错误
+- 公告冒烟 **27/27 通过**：清理前置 → admin 提权登录 → 健康 → 鉴权拦截（无 token 401 / 买家发布 403）→ 发布维护/运营公告 → 列表（未读状态/标题/数量）→ 分类筛选 → 未读数 2 → 详情（正文/未读）→ 标记已读幂等 → 未读数降 1 → 下架（列表减 1 / 未读归零 / 访问下线公告 400）→ 空标题 400
+- 桌面端端到端冒烟 **19/19 通过**（经网关 8000 全链路）：登录 → 商户信息（未入驻 204）→ admin 发布公告 → 公告列表/未读/已读/未读归零 → 内部邮件发送（含正文）/列表/详情/状态 → 站内信内部发送 → 通知列表/未读数 → 鉴权拦截
+- 网关 email 路由修复验证：`POST /api/emails` 经网关 201（body 字段返回）
+- 冒烟数据已清理（公告表清空，仅保留默认模板种子）
+
+### Notes
+- 发布者名称取自 JWT `UniqueName`（identity-service 签发为登录邮箱），公告展示「发布者：邮箱」为当前语义
+- 公告冒烟脚本内置前置清理（DELETE Announcements/AnnouncementReads），保证幂等可重跑
+- npm 安装 Electron 二进制需国内镜像加速：`ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/`（GitHub 源极慢）
+- desktop-app 构建：`npm run build`（vite build + tsc 主进程）→ `npm run dist`（electron-builder）
+
+---
 - **Phase 3 Week 15：notification-service（8019 通知中心）**：
   - **站内信收件箱**（用户维度，JWT sub 隔离）：分页列表（业务类型/已读状态过滤）、未读数统计、单条已读/全部已读（幂等 MarkRead 不重置 ReadAt）、软删除（IsDeleted 移出收件箱保留审计）；越权防护——他人操作本人通知返回 404
   - **通知模板**（平台级配置）：唯一编码（Code 仅字母/数字/下划线）+ 标题/内容模板 + `{变量}` 占位符渲染（大小写不敏感替换，未知变量替换为空）；首次启动幂等种子 8 条默认模板（订单支付/发货/新订单/退款/平台公告/风控告警/监控告警/短信验证码）；停用模板发送端拒绝使用 → TEMPLATE_NOT_FOUND

@@ -133,6 +133,7 @@ public sealed class EmailsController(EmailSender sender, EmailDbContext db) : Co
         From = e.From,
         To = e.To,
         Subject = e.Subject,
+        Body = e.Body,
         IsHtml = e.IsHtml,
         TemplateName = e.TemplateName,
         Status = e.Status,

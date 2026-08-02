@@ -22,6 +22,12 @@ public sealed class NotificationDbContext(DbContextOptions<NotificationDbContext
     /// <summary>App Push 推送记录表</summary>
     public DbSet<PushMessage> PushMessages => Set<PushMessage>();
 
+    /// <summary>平台公告表（广播模型，一对多不复制）</summary>
+    public DbSet<Announcement> Announcements => Set<Announcement>();
+
+    /// <summary>公告已读记录表（用户维度）</summary>
+    public DbSet<AnnouncementRead> AnnouncementReads => Set<AnnouncementRead>();
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,6 +82,29 @@ public sealed class NotificationDbContext(DbContextOptions<NotificationDbContext
             e.Property(x => x.LastError).HasMaxLength(1000);
             e.HasIndex(x => new { x.Status, x.CreatedAt });
             e.HasIndex(x => x.DeviceToken);
+            e.Property(x => x.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+        });
+
+        modelBuilder.Entity<Announcement>(e =>
+        {
+            e.ToTable("Announcements");
+            e.Property(x => x.Title).HasMaxLength(200).IsRequired();
+            e.Property(x => x.Content).HasMaxLength(5000).IsRequired();
+            e.Property(x => x.PublisherName).HasMaxLength(100).IsRequired();
+            // 用户端列表：按发布时间倒序 + 分类筛选 + 状态过滤
+            e.HasIndex(x => new { x.Status, x.PublishedAt });
+            e.HasIndex(x => new { x.Status, x.Category, x.PublishedAt });
+            e.Property(x => x.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            e.Property(x => x.UpdatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+        });
+
+        modelBuilder.Entity<AnnouncementRead>(e =>
+        {
+            e.ToTable("AnnouncementReads");
+            // 用户维度已读状态：复合唯一防重复，未读数按用户统计
+            e.HasKey(x => new { x.AnnouncementId, x.UserId });
+            e.HasIndex(x => x.UserId);
+            e.Property(x => x.ReadAt).IsRequired();
             e.Property(x => x.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
         });
     }

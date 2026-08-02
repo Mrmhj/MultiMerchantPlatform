@@ -50,7 +50,7 @@
 |------|------|------|--------|
 | performance-service | `docs/modules/performance-service.md` | ✅ 已完成 (v6.3) | P2 (Phase 3 Week 14) |
 | risk-service | `docs/modules/risk-service.md` | ✅ 已完成 (v6.4) | P2 (Phase 3 Week 14) |
-| notification-service | `docs/modules/notification-service.md` | ✅ 已完成 (v6.5) | P2 (Phase 3 Week 15) |
+| notification-service | `docs/modules/notification-service.md` | ✅ 已完成 (v6.6 公告) | P2 (Phase 3 Week 15) |
 
 ### P3 分析平台
 
@@ -66,7 +66,7 @@
 | web-merchant | `docs/modules/web-merchant.md` | ✅ 已完成 (v6.1) | 商户端 Web (Vue 3 + Element Plus) |
 | web-admin | `docs/modules/web-admin.md` | 📝 待编写 | 管理后台 (Vue 3 + Element Plus) |
 | mobile-app | `docs/modules/mobile-app.md` | ✅ 已完成 (v6.2) | 移动端 uni-app (v4.1改) |
-| desktop-app | `docs/modules/desktop-app.md` | 📝 待编写 | 桌面端 Electron (v4.1改) |
+| desktop-app | `docs/modules/desktop-app.md` | ✅ 已完成 (v6.6) | 桌面端 Electron (v4.1改) |
 
 ### 报告
 

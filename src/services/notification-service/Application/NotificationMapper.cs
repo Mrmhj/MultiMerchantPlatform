@@ -38,4 +38,24 @@ public static class NotificationMapper
         IsActive = t.IsActive,
         CreatedAt = t.CreatedAt,
     };
+
+    /// <summary>公告实体 → 公告响应（isRead/readAt 为当前用户已读状态）</summary>
+    /// <param name="a">公告实体</param>
+    /// <param name="isRead">当前用户是否已读</param>
+    /// <param name="readAt">当前用户已读时间（可选）</param>
+    /// <returns>公告 DTO</returns>
+    public static AnnouncementResponse ToAnnouncementResponse(
+        Announcement a, bool isRead, DateTime? readAt = null) => new()
+        {
+            Id = a.Id,
+            Title = a.Title,
+            Content = a.Content,
+            Category = a.Category,
+            PublisherName = a.PublisherName,
+            Status = a.Status,
+            PublishedAt = a.PublishedAt,
+            IsRead = isRead,
+            ReadAt = readAt,
+            CreatedAt = a.CreatedAt,
+        };
 }

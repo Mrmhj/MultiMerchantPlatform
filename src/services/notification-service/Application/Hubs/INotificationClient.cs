@@ -16,4 +16,8 @@ public interface INotificationClient
     /// <summary>未读数变化（标记已读后客户端同步角标）</summary>
     /// <param name="unreadCount">最新未读数</param>
     Task UnreadCountChanged(int unreadCount);
+
+    /// <summary>收到新公告（平台广播；客户端据此刷新公告列表/角标）</summary>
+    /// <param name="announcement">公告 DTO</param>
+    Task ReceiveAnnouncement(AnnouncementResponse announcement);
 }

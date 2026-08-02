@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v6.5 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
+> 版本对应：v6.6 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
 
 ---
 
@@ -34,7 +34,7 @@
 | **im-service** | 8016 | MMP_IM | ✅ v6.0 | 即时通讯（SignalR：私聊/客服群/已读/离线补推/内部推送） |
 | **performance-service** | 8017 | MMP_Infra | ✅ v6.3 | 压测（HTTP 并发/HTML 报告）+ 监控（内存/CPU/GC/线程池）+ 告警 |
 | **risk-service** | 8018 | MMP_Risk | ✅ v6.4 | 风控/反刷单（规则引擎/事件上报/决策/黑名单/案例处置） |
-| **notification-service** | 8019 | MMP_Notification | ✅ v6.5 | 通知中心（站内信/短信/Push/模板/SignalR 实时推送） |
+| **notification-service** | 8019 | MMP_Notification | ✅ v6.6 | 通知中心（站内信/短信/Push/模板/公告广播/SignalR 实时推送） |
 | messaging-service | 8010 | MMP_Infra | ✅ | 消息总线（Outbox/通配订阅） |
 | logging-service | 8011 | MMP_Infra | ✅ | 日志批量上报/查询/统计 |
 | email-service | 8015 | MMP_Email | ✅ | 邮件（MailKit/DryRun/模板/重试） |
@@ -43,10 +43,12 @@
 前端：`src/apps/web-customer`（Vue 3.5 + Vite 8 + Element Plus，C 端商城，端口 5173 dev）
 前端：`src/apps/web-merchant`（Vue 3.5 + Vite 8 + Element Plus，商户端，端口 5174 dev）
 前端：`src/apps/mobile-app`（uni-app Vue 3，C 端移动商城，H5 端口 5175 dev）
+前端：`src/apps/desktop-app`（Electron 33 + Vue 3.5，商户工作台，渲染端口 5176 dev；公告中心/内部邮件/通知收件箱）
 
 ## 三、当前进度
 
-- **Phase 3 Week 15 已完成**：notification-service 通知中心（提交见 git log）—— 短信/站内信/Push ✅
+- **Phase 3 Week 15-16 已完成**：desktop-app 桌面端 Electron（提交见 git log）—— 商户工作台（公告中心/内部邮件/通知收件箱，短信/Push 真实网关暂缓仅内部公告+内部邮件）
+- **Phase 3 Week 15 已完成**：notification-service 通知中心 v6.6（提交见 git log）—— 新增公告广播模块（Announcement + AnnouncementRead）
 - **Phase 3 Week 14 已完成**：risk-service 风控/反刷单（提交见 git log）—— 风控规则引擎 ✅
 - **Phase 3 Week 14 已完成**：performance-service 压测+内存监控（提交见 git log）
 - **Phase 2 Week 13 已完成**：mobile-app 移动端骨架（提交见 git log）—— **Phase 2 全部完成**
@@ -61,14 +63,14 @@
 
 ## 四、下一步（按 PROJECT_PLAN.md 路线图）
 
-> **Phase 3 进行中**（performance ✅ → risk ✅ → notification ✅ → Electron → BI）
+> **Phase 3 进行中**（performance ✅ → risk ✅ → notification ✅ → Electron ✅ → BI）
 
 | 周次 | 任务 | 端口/说明 |
 |---|---|---|
 | 14 | ~~performance-service（压测+内存监控）~~ | 8017 ✅ |
 | 14 | ~~risk-service（风控/反刷单）~~ | 8018 ✅ |
-| 15 | ~~notification-service（通知中心）~~ | 8019 ✅ |
-| 15-16 | 桌面端 Electron | 桌面应用可运行 |
+| 15 | ~~notification-service（通知中心，v6.6 含公告）~~ | 8019 ✅ |
+| 15-16 | ~~桌面端 Electron（商户工作台）~~ | desktop-app ✅ |
 | 16 | BI 分析管理平台（web-admin + ECharts） | BI 看板 |
 
 ## 五、工作流程约定（强制）

@@ -55,6 +55,9 @@ public sealed record EmailResponse
     /// <summary>主题</summary>
     public required string Subject { get; init; }
 
+    /// <summary>正文（内部邮件中心展示用；外部 SMTP 外发时正文不入响应，由业务方自行留档）</summary>
+    public string? Body { get; init; }
+
     /// <summary>是否 HTML 正文</summary>
     public bool IsHtml { get; init; }
 

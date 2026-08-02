@@ -58,6 +58,8 @@ artifacts/
 ## ── Node.js (前端项目) ──
 **/node_modules/
 **/dist/
+**/dist-electron/
+**/release/
 **/build/
 **/.next/
 **/.turbo/
@@ -67,6 +69,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+.npm-cache/
 
 ## ── MAUI ──
 **/Platforms/Android/Resources/values/
