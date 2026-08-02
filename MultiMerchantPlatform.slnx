@@ -23,5 +23,6 @@
     <Project Path="src/services/logging-service/LoggingService.csproj" />
     <Project Path="src/services/merchant-service/MerchantService.csproj" />
     <Project Path="src/services/messaging-service/MessagingService.csproj" />
+    <Project Path="src/services/product-service/ProductService.csproj" />
   </Folder>
 </Solution>

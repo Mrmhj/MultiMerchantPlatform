@@ -1,5 +1,27 @@
 # 变更记录
 
+## [v4.9] - 2026-08-02
+
+### Added
+- **Phase 1 Week 5-6：开发完成 product-service（商品管理微服务，端口 8003）**：
+  - 分类（商户自建，父子层级 + 排序 + 软停用）+ 商品 CRUD（含多 SKU：编码/规格/价格/库存）
+  - 上下架状态机（Draft→OnSale→OffSale，上架需启用 SKU）
+  - **多租户隔离落地**（首个业务级）：X-Merchant-Id 请求头 → ITenantProvider → 实体 MultiTenantEntity + DbContext HasQueryFilter + Handler 显式过滤三重防护
+  - 数据库：MMP_Product 库（Categories / Products / ProductSkus）
+  - 网关路由：`/api/product/**` → 8003
+  - 延续规范：Mediator + CQRS + 充血实体 + 全 API 注解 + Swagger Bearer
+- 新增模块文档 `docs/modules/product-service.md`
+
+### Verified
+- 全量编译 0 警告 0 错误（Release，17 个项目）
+- 冒烟测试全通过：分类父子 → 商品(2SKU) → 上架 → 缺商户头400 → 跨商户隔离(空/404) → 删除保护 → Swagger
+
+### Notes
+- **多租户安全修复**：首版 Update/Delete/查询未强制商户上下文（HasQueryFilter 空商户时不拦截），已改为 Handler 显式 `Where(MerchantId)` + 商户上下文必检
+- 踩坑：MultiTenantEntity.MerchantId 为 required，子类构造函数需 `[SetsRequiredMembers]`
+
+---
+
 ## [v4.8] - 2026-08-02
 
 ### Added
