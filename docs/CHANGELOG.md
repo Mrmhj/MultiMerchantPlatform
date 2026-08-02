@@ -1,5 +1,34 @@
 # 变更记录
 
+## [v6.5] - 2026-08-02
+
+### Added
+- **Phase 3 Week 15：notification-service（8019 通知中心）**：
+  - **站内信收件箱**（用户维度，JWT sub 隔离）：分页列表（业务类型/已读状态过滤）、未读数统计、单条已读/全部已读（幂等 MarkRead 不重置 ReadAt）、软删除（IsDeleted 移出收件箱保留审计）；越权防护——他人操作本人通知返回 404
+  - **通知模板**（平台级配置）：唯一编码（Code 仅字母/数字/下划线）+ 标题/内容模板 + `{变量}` 占位符渲染（大小写不敏感替换，未知变量替换为空）；首次启动幂等种子 8 条默认模板（订单支付/发货/新订单/退款/平台公告/风控告警/监控告警/短信验证码）；停用模板发送端拒绝使用 → TEMPLATE_NOT_FOUND
+  - **内部接口**（X-Internal-Key）：`POST /api/notifications/internal/send`（模板渲染或直接内容 + `realtime` 实时推送开关）、`internal/sms`、`internal/push` —— 供 order/logistics/performance/logging/risk 等系统服务接入
+  - **短信 / App Push 渠道**：独立记录表 + 状态机（Pending→Sent/Failed/DeadLetter，MaxRetryCount 上限转死信）；开发环境 DryRun 默认开启（仅落库标记成功），`SmsSender`/`PushSender` 预留真实第三方网关扩展点
+  - **SignalR 实时推送**：`/hub/notification` Hub（Authorize + query access_token + CustomUserIdProvider 按 sub 定向），强类型客户端 `INotificationClient`（ReceiveNotification / UnreadCountChanged）；标记已读后实时同步未读数角标
+  - **模板管理**（admin 角色）：模板 CRUD / 启停 / 列表过滤
+  - **数据模型**：MMP_Notification 独立库 4 张表（Notifications 含收件箱/未读/平台筛选复合索引 / NotificationTemplates Code 唯一 / SmsMessages / PushMessages），充血实体 + 状态机
+  - 分层：Mediator + CQRS 强制；网关 `/api/notifications/**` + `/hub/notification/**` 路由 + AspireHost 编排接入 + slnx 30 项目
+  - 新增模块文档 `docs/modules/notification-service.md`；冒烟脚本 `tests/smoke-notification.sh` + `tests/notification-signalr-test.js`
+
+### Verified
+- 全量编译 0 CS 警告 0 错误（30 项目，含 AspireHost；仅环境性 NU1900 NuGet 缓存权限警告）
+- notification 冒烟 **38/38 通过**：健康 → 鉴权拦截（无 token 401 / 买家调管理 403 / 内部密钥 401）→ 站内信直接内容 → 模板渲染（标题 + 变量替换 + 不存在模板 400）→ 列表/未读数/类型过滤 → 已读/全部已读/越权 404/删除 → 短信 DryRun（Sent + dryRun:true + 参数校验 400）→ Push DryRun → 模板 CRUD（种子/创建/更新/停用拒绝发送/启用/删除/重复编码 500）
+- notification SignalR **4/4 通过**：WebSocket 连接（JWT query token）→ 内部发送实时收到 ReceiveNotification → 标记已读收到 UnreadCountChanged
+- 网关路由验证：`/api/notifications/**`（401 无 token + 内部密钥拦截）与 `/hub/notification/**`（401 未认证）经 YARP 正常转发
+- 冒烟数据已清理（MMP_Notification 保留 8 条默认模板）
+
+### Notes
+- IMediator 无单泛型 SendAsync 重载：无返回值命令（Delete/DeleteTemplate）调用须显式 `SendAsync<TCommand, Unit>`（Unit 为空 record）
+- SignalR 推送语义：`IHubContext.Clients.User(id)` 无在线连接时静默丢弃，REST 落库为最终一致，实时通道仅加速感知（非可靠性通道）
+- PagedResult 序列化为 camelCase 字段 `totalCount/page/pageSize`（冒烟断言勿用 `total`）
+- 告警接入规划（后续）：performance AlertEvaluator / logging Error 日志自动触发 MONITOR_ALERT 模板（notification 已就绪）
+
+---
+
 ## [v6.4] - 2026-08-02
 
 ### Added

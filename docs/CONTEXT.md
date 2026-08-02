@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v6.4 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
+> 版本对应：v6.5 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
 
 ---
 
@@ -15,7 +15,7 @@
 - 多租户：商户维度 `X-Merchant-Id` 头 + `MultiTenantEntity` + `HasQueryFilter` + Handler 显式过滤
 - 服务间内部调用：`X-Internal-Key`（MMP-Internal-Key-2026）
 
-## 二、服务清单（12 服务 + 网关）
+## 二、服务清单（19 服务 + 网关）
 
 | 服务 | 端口 | 数据库 | 状态 | 说明 |
 |---|---|---|---|---|
@@ -34,6 +34,7 @@
 | **im-service** | 8016 | MMP_IM | ✅ v6.0 | 即时通讯（SignalR：私聊/客服群/已读/离线补推/内部推送） |
 | **performance-service** | 8017 | MMP_Infra | ✅ v6.3 | 压测（HTTP 并发/HTML 报告）+ 监控（内存/CPU/GC/线程池）+ 告警 |
 | **risk-service** | 8018 | MMP_Risk | ✅ v6.4 | 风控/反刷单（规则引擎/事件上报/决策/黑名单/案例处置） |
+| **notification-service** | 8019 | MMP_Notification | ✅ v6.5 | 通知中心（站内信/短信/Push/模板/SignalR 实时推送） |
 | messaging-service | 8010 | MMP_Infra | ✅ | 消息总线（Outbox/通配订阅） |
 | logging-service | 8011 | MMP_Infra | ✅ | 日志批量上报/查询/统计 |
 | email-service | 8015 | MMP_Email | ✅ | 邮件（MailKit/DryRun/模板/重试） |
@@ -45,6 +46,7 @@
 
 ## 三、当前进度
 
+- **Phase 3 Week 15 已完成**：notification-service 通知中心（提交见 git log）—— 短信/站内信/Push ✅
 - **Phase 3 Week 14 已完成**：risk-service 风控/反刷单（提交见 git log）—— 风控规则引擎 ✅
 - **Phase 3 Week 14 已完成**：performance-service 压测+内存监控（提交见 git log）
 - **Phase 2 Week 13 已完成**：mobile-app 移动端骨架（提交见 git log）—— **Phase 2 全部完成**
@@ -55,17 +57,17 @@
 - **Phase 2 Week 10-11 已完成**：promotion-service（提交 a83aa99）
 - **Phase 2 Week 10 已完成**：cart-service + search-service（提交 c5512d7）
 - **Phase 1 全部完成**（v4.7-v5.4）：identity → merchant → product → order → pay → stock → 库存联动 → C 端 Web 商城
-- 全量编译 **0 警告 0 错误**（27 项目）；最近提交见 git log
+- 全量编译 **0 警告 0 错误**（30 项目）；最近提交见 git log
 
 ## 四、下一步（按 PROJECT_PLAN.md 路线图）
 
-> **Phase 3 进行中**（performance-service ✅ → risk-service ✅ → notification-service → Electron → BI）
+> **Phase 3 进行中**（performance ✅ → risk ✅ → notification ✅ → Electron → BI）
 
 | 周次 | 任务 | 端口/说明 |
 |---|---|---|
 | 14 | ~~performance-service（压测+内存监控）~~ | 8017 ✅ |
 | 14 | ~~risk-service（风控/反刷单）~~ | 8018 ✅ |
-| 15 | notification-service（通知中心） | 8019 |
+| 15 | ~~notification-service（通知中心）~~ | 8019 ✅ |
 | 15-16 | 桌面端 Electron | 桌面应用可运行 |
 | 16 | BI 分析管理平台（web-admin + ECharts） | BI 看板 |
 
@@ -92,6 +94,10 @@
 - **EF 表达式树禁用自定义方法**：`IsExpired()`/维度匹配等静态方法不能用于查询谓词 → 内联可翻译表达式或按枚举分支写多个查询
 - **EF 表达式树禁用 `is ... or ...` 模式匹配** → 改用 `== || ==` 等值比较
 - **冒烟维度键必须每次运行唯一**（时间戳生成 GUID 末段）：固定 IP/用户会在窗口内残留历史事件污染统计
+- **IMediator 无单泛型 SendAsync**：无返回值命令调用须显式 `SendAsync<TCommand, Unit>`（Unit 为空 record）
+- **SignalR 推送语义**：`IHubContext.Clients.User(id)` 无在线连接时静默丢弃，REST 落库为最终一致，实时通道仅加速感知
+- **PagedResult 序列化为 `totalCount/page/pageSize`**（camelCase）：冒烟断言勿用 `total`
+- **Aspire AppHost 新增服务**：需同时更新 slnx + AppHost.csproj ProjectReference（否则 `Projects.X` 命名空间缺失报 CS0234）
 
 ## 七、关键文档索引
 
@@ -102,4 +108,4 @@
 | 变更记录 | `docs/CHANGELOG.md`（当前 v5.9） |
 | 文档索引 | `docs/DOC_INDEX.md` |
 | Token 分析 | `docs/reports/token-usage-analysis.md` |
-| 模块文档 | `docs/modules/<service>.md` × 13 |
+| 模块文档 | `docs/modules/<service>.md` × 14 |

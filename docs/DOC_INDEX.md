@@ -13,7 +13,7 @@
 | API 规范 | `E:\MultiMerchantPlatform\docs\API_SPEC.md` | 📝 待编写 | 所有微服务 API 接口文档 |
 | 数据库设计 | `E:\MultiMerchantPlatform\docs\DATABASE.md` | 📝 待编写 | 所有数据库表结构设计 |
 | 部署指南 | `E:\MultiMerchantPlatform\docs\DEPLOYMENT.md` | 📝 待编写 | 部署与运维操作指南 |
-| 变更记录 | `E:\MultiMerchantPlatform\docs\CHANGELOG.md` | ✅ v6.2 | 每次调整追加记录 |
+| 变更记录 | `E:\MultiMerchantPlatform\docs\CHANGELOG.md` | ✅ v6.5 | 每次调整追加记录 |
 | 文档索引 | `E:\MultiMerchantPlatform\docs\DOC_INDEX.md` | ✅ 本文档 | 文档路径汇总 |
 
 ## 模块文档
@@ -50,7 +50,7 @@
 |------|------|------|--------|
 | performance-service | `docs/modules/performance-service.md` | ✅ 已完成 (v6.3) | P2 (Phase 3 Week 14) |
 | risk-service | `docs/modules/risk-service.md` | ✅ 已完成 (v6.4) | P2 (Phase 3 Week 14) |
-| notification-service | `docs/modules/notification-service.md` | 📝 待编写 | P2 |
+| notification-service | `docs/modules/notification-service.md` | ✅ 已完成 (v6.5) | P2 (Phase 3 Week 15) |
 
 ### P3 分析平台
 

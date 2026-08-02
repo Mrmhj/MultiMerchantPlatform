@@ -7,6 +7,7 @@
     <ProjectReference Include="..\..\services\email-service\EmailService.csproj" />
     <ProjectReference Include="..\..\services\performance-service\PerformanceService.csproj" />
     <ProjectReference Include="..\..\services\risk-service\RiskService.csproj" />
+    <ProjectReference Include="..\..\services\notification-service\NotificationService.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

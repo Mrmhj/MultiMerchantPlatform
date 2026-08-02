@@ -260,7 +260,7 @@ E:\MultiMerchantPlatform\
 | **P2** | im-service | 即时通讯 **(v4新增)** ✅ v6.0 | 8016 |
 | **P2** | performance-service | 压测+内存监控 **(v4新增)** ✅ v6.3 | 8017 |
 | **P2** | risk-service | 风控/反刷单 ✅ v6.4 | 8018 |
-| **P2** | notification-service | 通知中心（短信/站内信/Push） | 8019 |
+| **P2** | notification-service | 通知中心（短信/站内信/Push）✅ v6.5 | 8019 |
 | **P3** | bi-admin | BI 分析管理平台 | 8020 |
 | — | api-gateway | YARP 网关 | 8000 |
 
@@ -723,7 +723,7 @@ src/apps/
 |----|------|------|
 | 14 | **performance-service**（压测+内存监控） | 监控看板可用 ✅ v6.3 |
 | 14 | **risk-service**（风控/反刷单） | 风控规则引擎 ✅ v6.4 |
-| 15 | notification-service（通知中心） | 短信/站内信/Push |
+| 15 | **notification-service**（通知中心） | 短信/站内信/Push ✅ v6.5 |
 | 15-16 | **桌面端 Electron** | 桌面应用可运行 |
 | 16 | **BI 分析管理平台**（Vue 3 + ECharts） | BI 看板 |
 

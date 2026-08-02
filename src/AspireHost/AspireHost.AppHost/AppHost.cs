@@ -27,12 +27,17 @@ var performanceService = builder.AddProject<Projects.PerformanceService>("perfor
 var riskService = builder.AddProject<Projects.RiskService>("risk-service")
     .WithEndpoint(name: "http", port: 8018, targetPort: 8080);
 
+// Phase 3: 通知中心 (port 8019)
+var notificationService = builder.AddProject<Projects.NotificationService>("notification-service")
+    .WithEndpoint(name: "http", port: 8019, targetPort: 8080);
+
 // 网关转发基础设施服务接口
 apiGateway.WithReference(messagingService);
 apiGateway.WithReference(loggingService);
 apiGateway.WithReference(emailService);
 apiGateway.WithReference(performanceService);
 apiGateway.WithReference(riskService);
+apiGateway.WithReference(notificationService);
 
 // ── 核心业务服务 (Phase 1) ──
 // - identity-service (port 8001)
