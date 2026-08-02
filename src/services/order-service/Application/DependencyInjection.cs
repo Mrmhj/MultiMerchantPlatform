@@ -45,6 +45,17 @@ public static class OrderServiceDependencyInjection
         });
         services.AddScoped<StockServiceClient>();
 
+        // 物流服务客户端（命名 HttpClient 携带 X-Internal-Key 默认头，IHttpClientFactory 按名取）
+        var logisticsBaseUrl = configuration["Services:LogisticsService:BaseUrl"] ?? "http://localhost:8013";
+        services.AddHttpClient("logistics", client =>
+        {
+            client.BaseAddress = new Uri(logisticsBaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(10);
+            if (!string.IsNullOrEmpty(internalKey))
+                client.DefaultRequestHeaders.Add("X-Internal-Key", internalKey);
+        });
+        services.AddScoped<LogisticsServiceClient>();
+
         // 中介者 + CQRS 处理器
         services.AddMediator();
         services.AddCqrsHandlers(typeof(CreateOrderCommandHandler).Assembly);

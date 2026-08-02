@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v5.8 · 2026-08-02 · 提交 d90447d · 工作区已提交干净
+> 版本对应：v5.9 · 2026-08-02 · 提交 <本次提交后回填> · 工作区已提交干净
 
 ---
 
@@ -29,6 +29,8 @@
 | **search-service** | 8008 | MMP_Search | ✅ v5.5 | 商品搜索索引（在售/关键词/价格） |
 | **promotion-service** | 8009 | MMP_Promotion | ✅ v5.7 | 优惠券/满减活动/内部核销 |
 | **review-service** | 8012 | MMP_Review | ✅ v5.8 | 商品评价（买家/商户/公开） |
+| **logistics-service** | 8013 | MMP_Logistics | ✅ v5.9 | 物流（运单/轨迹/公司，订单发货联动） |
+| **settlement-service** | 8014 | MMP_Settlement | ✅ v5.9 | 结算（佣金规则/结算单/幂等生成） |
 | messaging-service | 8010 | MMP_Infra | ✅ | 消息总线（Outbox/通配订阅） |
 | logging-service | 8011 | MMP_Infra | ✅ | 日志批量上报/查询/统计 |
 | email-service | 8015 | MMP_Email | ✅ | 邮件（MailKit/DryRun/模板/重试） |
@@ -38,18 +40,18 @@
 
 ## 三、当前进度
 
+- **Phase 2 Week 11 已完成**：logistics-service + settlement-service（提交 <本次提交后回填>）
 - **Phase 2 Week 10-11 已完成**：review-service（提交 d90447d）
 - **Phase 2 Week 10-11 已完成**：promotion-service（提交 a83aa99）
 - **Phase 2 Week 10 已完成**：cart-service + search-service（提交 c5512d7）
 - **Phase 1 全部完成**（v4.7-v5.4）：identity → merchant → product → order → pay → stock → 库存联动 → C 端 Web 商城
-- 全量编译 **0 警告 0 错误**（24 项目）；最近提交见 git log
+- 全量编译 **0 警告 0 错误**（26 项目）；最近提交见 git log
 
 ## 四、下一步（按 PROJECT_PLAN.md 路线图）
 
 | 周次 | 任务 | 端口/说明 |
 |---|---|---|
-| 11 | logistics-service + settlement-service | 物流 + 结算 |
-| 12 | im-service | 即时通讯 |
+| 12 | im-service | 即时通讯（SignalR，8016） |
 | 12-13 | 商户端 Web 前端（web-merchant） | Vue 3 |
 | 13 | 移动端 uni-app 骨架 | App 可运行 |
 
@@ -70,7 +72,9 @@
 - 服务 Release 直跑端口用 `ASPNETCORE_URLS` 显式指定
 - **服务直跑必须 cd 到 bin/Release/net10.0 目录**：`dotnet xxx.dll` 从项目根启动读不到 appsettings.json（content root 为当前目录），报「缺少 Jwt 配置节」
 - EF 关系修复致 `TryComplete` 误判 → 必须 Include 全部子单再判断
-- 测试/演示后停服务进程（PowerShell `Get-NetTCPConnection -LocalPort` 批量停）
+- **EF 子实体误判 UPDATE**：充血模型下新建子实体（客户端 Guid 主键）经导航集合添加被推断为 Unchanged → 0 行并发异常 → 必须显式 `db.Set<T>().Add()` 标记 Added
+- 内部接口 `[FromHeader] string key`（非空引用类型）在 [ApiController] 下缺头自动 400（与错误密钥 401 语义一致，系统统一行为）
+- 测试/演示后停服务进程（PowerShell `Get-NetTCPConnection -LocalPort` 批量停）；**运行中服务锁定 bin/Release/*.dll，重编译前先停**
 
 ## 七、关键文档索引
 
@@ -78,7 +82,7 @@
 |---|---|
 | 路线图 | `docs/PROJECT_PLAN.md`（v4.1，22 周） |
 | 编码规范 | `docs/architecture/coding-standards.md`（v1.0） |
-| 变更记录 | `docs/CHANGELOG.md`（当前 v5.6） |
+| 变更记录 | `docs/CHANGELOG.md`（当前 v5.9） |
 | 文档索引 | `docs/DOC_INDEX.md` |
 | Token 分析 | `docs/reports/token-usage-analysis.md` |
-| 模块文档 | `docs/modules/<service>.md` × 11 |
+| 模块文档 | `docs/modules/<service>.md` × 13 |

@@ -3,18 +3,25 @@ using BuildingBlocks.Core.Exceptions;
 using BuildingBlocks.MultiTenant;
 using OrderService.Domain.Enums;
 using OrderService.DTOs;
+using OrderService.Infrastructure;
 using OrderService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace OrderService.Application.Commands;
 
 /// <summary>子订单发货命令（商户操作，X-Merchant-Id）</summary>
-public sealed record ShipSubOrderCommand(Guid SubOrderId) : ICommand<SubOrderResponse>;
+/// <param name="SubOrderId">子订单 ID</param>
+/// <param name="CarrierCode">物流公司编码</param>
+/// <param name="TrackingNo">物流运单号</param>
+public sealed record ShipSubOrderCommand(Guid SubOrderId, string CarrierCode, string TrackingNo) : ICommand<SubOrderResponse>;
 
-/// <summary>子订单发货命令处理器</summary>
+/// <summary>子订单发货命令处理器（发货成功 → 通知物流服务创建运单，下游失败不阻断发货）</summary>
 public sealed class ShipSubOrderCommandHandler(
     OrderDbContext db,
-    ITenantProvider tenantProvider) : ICommandHandler<ShipSubOrderCommand, SubOrderResponse>
+    ITenantProvider tenantProvider,
+    LogisticsServiceClient logisticsClient,
+    ILogger<ShipSubOrderCommandHandler> logger) : ICommandHandler<ShipSubOrderCommand, SubOrderResponse>
 {
     /// <inheritdoc />
     public async Task<SubOrderResponse> HandleAsync(ShipSubOrderCommand command, CancellationToken ct = default)
@@ -27,8 +34,20 @@ public sealed class ShipSubOrderCommandHandler(
             .FirstOrDefaultAsync(s => s.Id == command.SubOrderId && s.MerchantId == merchantId, ct)
             ?? throw new NotFoundException("子订单", command.SubOrderId);
 
-        sub.Ship();
+        sub.Ship(command.CarrierCode, command.TrackingNo);
         await db.SaveChangesAsync(ct);
+
+        // 发货成功 → 通知物流服务创建运单（物流服务不可用不阻断发货，仅记录日志）
+        var order = await db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == sub.OrderId, ct);
+        if (order is not null)
+        {
+            var result = await logisticsClient.CreateShipmentAsync(
+                order.BuyerUserId, sub.MerchantId, sub.Id, order.Id, order.OrderNo,
+                command.CarrierCode, command.TrackingNo, ct);
+            if (!result.IsSuccess)
+                logger.LogWarning("创建物流运单失败 SubOrderId={SubOrderId} Error={Error}", sub.Id, result.Error);
+        }
+
         return OrderMapper.ToSubOrderResponse(sub);
     }
 }

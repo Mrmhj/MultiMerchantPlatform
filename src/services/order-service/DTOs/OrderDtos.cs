@@ -104,9 +104,37 @@ public sealed record SubOrderResponse
     /// <summary>子单状态（1待付款 2已付款 3已发货 4已完成 5已取消）</summary>
     public SubOrderStatus Status { get; init; }
 
+    /// <summary>物流公司编码（已发货后非空）</summary>
+    public string? CarrierCode { get; init; }
+
+    /// <summary>物流运单号（已发货后非空）</summary>
+    public string? TrackingNo { get; init; }
+
     /// <summary>商品项列表</summary>
     public required List<OrderItemResponse> Items { get; init; }
 }
+
+/// <summary>子订单发货请求（商户端）</summary>
+public sealed record ShipSubOrderRequest
+{
+    /// <summary>物流公司编码（2-50 字符）</summary>
+    [System.ComponentModel.DataAnnotations.Required, System.ComponentModel.DataAnnotations.StringLength(50, MinimumLength = 2)]
+    public required string CarrierCode { get; init; }
+
+    /// <summary>物流运单号（6-64 字符）</summary>
+    [System.ComponentModel.DataAnnotations.Required, System.ComponentModel.DataAnnotations.StringLength(64, MinimumLength = 6)]
+    public required string TrackingNo { get; init; }
+}
+
+/// <summary>已完成子订单 DTO（内部接口，供 settlement-service 生成结算单）</summary>
+public sealed record CompletedSubOrderDto(
+    Guid SubOrderId,
+    Guid OrderId,
+    string OrderNo,
+    Guid MerchantId,
+    string MerchantName,
+    decimal TotalAmount,
+    DateTime CompletedAt);
 
 /// <summary>订单响应</summary>
 public sealed record OrderResponse

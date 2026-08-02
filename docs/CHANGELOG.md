@@ -1,5 +1,36 @@
 # 变更记录
 
+## [v5.9] - 2026-08-02
+
+### Added
+- **Phase 2 Week 11：logistics-service（8013 物流）**：
+  - **订单-物流联动**：商户发货（order-service `POST /api/orders/merchant/{id}/ship`）携带 `carrierCode + trackingNo` → 发货成功自动回调物流服务**创建运单**（物流服务不可用不阻断发货，仅记日志）
+  - **运单/轨迹**：一子订单一运单（SubOrderId 唯一）+ 运单号唯一；轨迹状态机 Created→InTransit→OutForDelivery→Signed，任意状态可转 Exception（签收记录 SignedAt）
+  - **物流公司**（平台 admin）：创建/更新/启停 + 启用列表（商户发货选择）；种子 6 家公司（顺丰/圆通/中通/韵达/京东/EMS 含官网查询链接）
+  - **查询**：买家按子订单查我的物流（BuyerUserId 隔离，他人 404）+ 商户运单列表/详情（status 过滤）
+  - **内部接口**：`POST /internal/shipments`（创建运单）+ `POST /internal/tracks/advance`（模拟物流回调推进轨迹）
+  - 数据库：MMP_Logistics 库 + 网关 `/api/logistics/**` 直通路由（8013）
+- **Phase 2 Week 11：settlement-service（8014 结算）**：
+  - **佣金规则**（平台 admin）：按商户设置佣金比例（0-100%，一商户一条），未配置用平台默认（DefaultCommissionRate=5）
+  - **结算单生成**：按周期（可选）拉 order-service 已完成子订单 → 排除已结算 → 按商户聚合 + 佣金计算（`SettlementItem.SubOrderId` 唯一索引**幂等防重**，重复生成 skipped 计数）
+  - **结算流转**：Pending → Settled（确认）→ Paid（打款），越权流转 400
+  - **商户端**：结算单列表/详情/概览（待结算+已结算金额与单数）/我的佣金比例
+  - 数据库：MMP_Settlement 库 + 网关 `/api/settlements/**`、`/api/commission-rules/**` 直通路由（8014）
+- **order-service 配合改动**：`SubOrder` 新增 `CarrierCode/TrackingNo` 字段（发货写入）+ `Ship(carrierCode, trackingNo)`；`Complete()` 写入完成时间（`UpdatedAt`）；新增内部接口 `GET /api/orders/internal/completed-suborders`（结算数据源，X-Internal-Key）
+- 新增模块文档 `docs/modules/logistics-service.md`、`docs/modules/settlement-service.md`
+
+### Verified
+- 全量编译 0 警告 0 错误（26 个项目，仅环境性 NU1900 缓存警告）
+- 物流冒烟全通过：健康 → 内部建运单（公司名自动带出）→ 重复创建 400 → 轨迹推进至签收 → 签收后再推进 400 → **商户发货 → 运单自动创建** → 商户列表/详情 → 买家查自己 ✅ / 查他人 404 → 公司管理（admin）→ 买家调平台 403 → 网关转发
+- 结算冒烟全通过：健康 → 佣金规则 10% → 生成结算单（62.30 → 佣金 6.23 → 结算 56.07，明细逐条正确）→ 重复生成幂等 skipped=2 → 确认结算 → 打款 → 商户列表/概览/佣金比例 → 缺商户头 400 → 网关转发
+
+### Notes
+- **Bug 修复**：充血模型下新建子实体（ShipmentTrack，客户端 Guid 主键）经导航集合添加时被 EF 推断为 Unchanged → 误判 UPDATE 0 行并发异常 → 必须显式 `db.Tracks.Add(track)` 标记 Added
+- 既有行为确认：内部接口 `[FromHeader] string key`（非空引用类型）在 `[ApiController]` 下缺头自动 400（pay-internal 同样行为），与错误密钥 401 语义一致，保持系统一致性
+- 结算金额口径：按子订单 `TotalAmount`（商品金额）计佣，优惠分摊/退款冲抵留待后续阶段增强
+
+---
+
 ## [v5.8] - 2026-08-02
 
 ### Added

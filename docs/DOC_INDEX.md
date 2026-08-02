@@ -13,7 +13,7 @@
 | API 规范 | `E:\MultiMerchantPlatform\docs\API_SPEC.md` | 📝 待编写 | 所有微服务 API 接口文档 |
 | 数据库设计 | `E:\MultiMerchantPlatform\docs\DATABASE.md` | 📝 待编写 | 所有数据库表结构设计 |
 | 部署指南 | `E:\MultiMerchantPlatform\docs\DEPLOYMENT.md` | 📝 待编写 | 部署与运维操作指南 |
-| 变更记录 | `E:\MultiMerchantPlatform\docs\CHANGELOG.md` | ✅ v5.7 | 每次调整追加记录 |
+| 变更记录 | `E:\MultiMerchantPlatform\docs\CHANGELOG.md` | ✅ v5.9 | 每次调整追加记录 |
 | 文档索引 | `E:\MultiMerchantPlatform\docs\DOC_INDEX.md` | ✅ 本文档 | 文档路径汇总 |
 
 ## 模块文档
@@ -40,8 +40,8 @@
 | search-service | `docs/modules/search-service.md` | ✅ 已完成 (v5.5) | P1 (Phase 2 Week 10) |
 | promotion-service | `docs/modules/promotion-service.md` | ✅ 已完成 (v5.7) | P1 (Phase 2 Week 10-11) |
 | review-service | `docs/modules/review-service.md` | ✅ 已完成 (v5.8) | P1 (Phase 2 Week 10-11) |
-| logistics-service | `docs/modules/logistics-service.md` | 📝 待编写 | P1 |
-| settlement-service | `docs/modules/settlement-service.md` | 📝 待编写 | P1 |
+| logistics-service | `docs/modules/logistics-service.md` | ✅ 已完成 (v5.9) | P1 (Phase 2 Week 11) |
+| settlement-service | `docs/modules/settlement-service.md` | ✅ 已完成 (v5.9) | P1 (Phase 2 Week 11) |
 
 ### P2 平台服务
 

@@ -34,6 +34,8 @@ public static class OrderMapper
         MerchantName = sub.MerchantName,
         TotalAmount = sub.TotalAmount,
         Status = sub.Status,
+        CarrierCode = sub.CarrierCode,
+        TrackingNo = sub.TrackingNo,
         Items = sub.Items.Select(ToItemResponse).ToList(),
     };
 

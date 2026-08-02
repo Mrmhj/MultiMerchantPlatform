@@ -22,6 +22,7 @@
     <Project Path="src/services/email-service/EmailService.csproj" />
     <Project Path="src/services/identity-service/IdentityService.csproj" />
     <Project Path="src/services/logging-service/LoggingService.csproj" />
+    <Project Path="src/services/logistics-service/LogisticsService.csproj" />
     <Project Path="src/services/merchant-service/MerchantService.csproj" />
     <Project Path="src/services/messaging-service/MessagingService.csproj" />
     <Project Path="src/services/order-service/OrderService.csproj" />
@@ -30,6 +31,7 @@
     <Project Path="src/services/promotion-service/PromotionService.csproj" />
     <Project Path="src/services/review-service/ReviewService.csproj" />
     <Project Path="src/services/search-service/SearchService.csproj" />
+    <Project Path="src/services/settlement-service/SettlementService.csproj" />
     <Project Path="src/services/stock-service/StockService.csproj" />
   </Folder>
 </Solution>

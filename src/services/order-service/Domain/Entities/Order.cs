@@ -139,6 +139,12 @@ public sealed class SubOrder : Entity
     /// <summary>子单状态（Pending/Paid/Shipped/Completed/Cancelled）</summary>
     public SubOrderStatus Status { get; private set; }
 
+    /// <summary>物流公司编码（发货后写入，未发货为 null）</summary>
+    public string? CarrierCode { get; private set; }
+
+    /// <summary>物流运单号（发货后写入，未发货为 null）</summary>
+    public string? TrackingNo { get; private set; }
+
     /// <summary>商品项列表</summary>
     public IReadOnlyList<OrderItem> Items => _items;
 
@@ -169,22 +175,32 @@ public sealed class SubOrder : Entity
             Status = SubOrderStatus.Cancelled;
     }
 
-    /// <summary>发货（商户操作，已付款或已发货可发货）</summary>
-    public void Ship()
+    /// <summary>发货（商户操作，已付款或已发货可发货；写入物流信息并同步物流服务）</summary>
+    /// <param name="carrierCode">物流公司编码（2-50 字符）</param>
+    /// <param name="trackingNo">物流运单号（6-64 字符）</param>
+    public void Ship(string carrierCode, string trackingNo)
     {
         if (Status is not (SubOrderStatus.Paid or SubOrderStatus.Shipped))
             throw new InvalidOperationException($"当前状态不允许发货（{Status}）");
+        if (string.IsNullOrWhiteSpace(carrierCode) || carrierCode.Trim().Length is < 2 or > 50)
+            throw new ArgumentException("物流公司编码需在 2-50 字符之间", nameof(carrierCode));
+        if (string.IsNullOrWhiteSpace(trackingNo) || trackingNo.Trim().Length is < 6 or > 64)
+            throw new ArgumentException("运单号需在 6-64 字符之间", nameof(trackingNo));
 
+        CarrierCode = carrierCode.Trim();
+        TrackingNo = trackingNo.Trim();
         Status = SubOrderStatus.Shipped;
+        UpdatedAt = DateTime.UtcNow;
     }
 
-    /// <summary>完成子单（已发货可完成）</summary>
+    /// <summary>完成子单（已发货可完成，记录完成时间供结算使用）</summary>
     public void Complete()
     {
         if (Status != SubOrderStatus.Shipped)
             throw new InvalidOperationException($"当前状态不允许完成（{Status}）");
 
         Status = SubOrderStatus.Completed;
+        UpdatedAt = DateTime.UtcNow;
     }
 }
 

@@ -45,19 +45,21 @@ public sealed class MerchantOrdersController(IMediator mediator) : ControllerBas
         }
     }
 
-    /// <summary>子订单发货（已付款后操作）</summary>
+    /// <summary>子订单发货（已付款后操作，需携带物流公司编码与运单号，自动创建物流运单）</summary>
     /// <param name="id">子订单 ID</param>
+    /// <param name="request">物流信息（物流公司编码 + 运单号）</param>
     /// <param name="ct">取消令牌</param>
     /// <returns>200 — 发货后的子订单；400 — 状态不允许或缺商户上下文；404 — 子订单不存在</returns>
     [HttpPost("{id:guid}/ship")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<SubOrderResponse>> Ship(Guid id, CancellationToken ct)
+    public async Task<ActionResult<SubOrderResponse>> Ship(
+        Guid id, [FromBody] ShipSubOrderRequest request, CancellationToken ct)
     {
         try
         {
-            var command = new ShipSubOrderCommand(id);
+            var command = new ShipSubOrderCommand(id, request.CarrierCode, request.TrackingNo);
             return Ok(await mediator.SendAsync<ShipSubOrderCommand, SubOrderResponse>(command, ct));
         }
         catch (NotFoundException)
@@ -69,6 +71,10 @@ public sealed class MerchantOrdersController(IMediator mediator) : ControllerBas
             return BadRequest(new { error = ex.Message, code = ex.ErrorCode });
         }
         catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (ArgumentException ex)
         {
             return BadRequest(new { error = ex.Message });
         }
