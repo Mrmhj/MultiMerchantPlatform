@@ -1,5 +1,25 @@
 # 变更记录
 
+## [v6.1] - 2026-08-02
+
+### Added
+- **Phase 2 Week 12-13：web-merchant 商户端 Web 前端（Vue 3.5 + Vite 8 + TS + Element Plus，端口 5174）**：
+  - **登录 + 入驻闭环**：经网关 `/identity/auth/login` 登录 → `merchants/me` 拉取商户状态（1待审/2通过/3驳回/4禁用）→ 未入驻自动引导申请页，审核通过后进入工作台
+  - **9 大管理模块**：工作台（结算概览 + 商户信息）/ 商品（列表/上下架/创建编辑含 SKU 表格编辑器/分类 CRUD）/ 订单（列表/详情/发货联动物流/确认完成）/ 库存（补货/流水）/ 营销（满减活动 + 优惠券双 Tab，启停）/ 评价（回复/隐藏恢复）/ 物流（运单/轨迹时间线）/ 结算（概览卡片/明细/佣金比例）/ 在线客服
+  - **IM 客服双通道**：SignalR（`/hub/chat` WebSocket，实时收发/已读回执/输入中指示/离线补推）+ REST `reply` 兜底；其他会话来消息自动刷新未读数
+  - **架构约定**：Axios 拦截器自动注入 JWT + `X-Merchant-Id`（登录后写入 localStorage）；登录守卫带 redirect 回跳；Vite 代理 `/api` + `/hub`(ws) → 网关 8000
+  - 新增模块文档 `docs/modules/web-merchant.md`；冒烟脚本 `tests/smoke-web-merchant.sh`
+
+### Verified
+- `vite build` 构建通过 + `tsc --noEmit` 0 错误（补充 `env.d.ts` Vue SFC 声明）
+- web-merchant 冒烟全通过（21 项，经 Vite 代理模拟浏览器真实链路）：注册/登录 → 未入驻 204 → 入驻申请 → **admin 提权审核通过** → 商户回查 → 分类创建 → 商品创建（含 SKU）→ 上架 → 商品列表 → 库存列表 → 优惠券/满减活动创建 → 评价/运单/结算概览/佣金接口 → IM 内部推送建系统会话 → 商户会话列表 → 商户回复，全部通过
+
+### Notes
+- 冒烟提权经验：sqlcmd `-Q` 传含引号 SQL 在 Git Bash 下转义不可靠、`-i` 不接受正斜杠路径 → **cd 到脚本目录 + `-i role_tmp.sql` 相对路径** 稳定提权（admin 审核用）
+- 网关 identity 路由为 `/api/identity/**`（登录走 `/identity/auth/login`，非 `/auth/login`）
+
+---
+
 ## [v6.0] - 2026-08-02
 
 ### Added

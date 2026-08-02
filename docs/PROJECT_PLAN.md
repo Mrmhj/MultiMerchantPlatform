@@ -714,7 +714,7 @@ src/apps/
 | 10-11 | promotion-service + review-service | 优惠券 + 评价 ✅ |
 | 11 | logistics-service + settlement-service | 物流 + 结算 ✅ |
 | 12 | **im-service**（即时通讯） | 聊天功能 ✅ |
-| 12-13 | 商户端 Web 前端（Vue 3） | 商户管理后台 |
+| 12-13 | 商户端 Web 前端（Vue 3） | 商户管理后台 ✅ |
 | 13 | **移动端 uni-app** 骨架 + 核心页面 | App 可运行 |
 
 ### Phase 3：平台支撑（第 14-16 周）

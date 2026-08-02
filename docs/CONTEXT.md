@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v6.0 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
+> 版本对应：v6.1 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
 
 ---
 
@@ -38,9 +38,11 @@
 | ApiGateway（YARP） | 8000 | — | ✅ | 路由转发 |
 
 前端：`src/apps/web-customer`（Vue 3.5 + Vite 8 + Element Plus，C 端商城，端口 5173 dev）
+前端：`src/apps/web-merchant`（Vue 3.5 + Vite 8 + Element Plus，商户端，端口 5174 dev）
 
 ## 三、当前进度
 
+- **Phase 2 Week 12-13 已完成**：web-merchant 商户端 Web 前端（提交见 git log）
 - **Phase 2 Week 12 已完成**：im-service（提交见 git log）
 - **Phase 2 Week 11 已完成**：logistics-service + settlement-service（提交 df07235）
 - **Phase 2 Week 10-11 已完成**：review-service（提交 d90447d）
@@ -53,8 +55,12 @@
 
 | 周次 | 任务 | 端口/说明 |
 |---|---|---|
-| 12-13 | 商户端 Web 前端（web-merchant） | Vue 3 |
 | 13 | 移动端 uni-app 骨架 | App 可运行 |
+| 14 | performance-service（压测+内存监控） | 8017 |
+| 14 | risk-service（风控/反刷单） | 8018 |
+| 15 | notification-service（通知中心） | 8019 |
+| 15-16 | 桌面端 Electron | 桌面应用可运行 |
+| 16 | BI 分析管理平台（web-admin + ECharts） | BI 看板 |
 
 ## 五、工作流程约定（强制）
 
