@@ -43,11 +43,13 @@ public static class ProductMapper
 
     /// <summary>商品实体转响应 DTO（含 SKU 列表）</summary>
     /// <param name="product">商品实体</param>
+    /// <param name="merchantName">商户名称（可选，公开接口带出）</param>
     /// <returns>商品响应</returns>
-    public static ProductResponse ToResponse(Product product) => new()
+    public static ProductResponse ToResponse(Product product, string? merchantName = null) => new()
     {
         Id = product.Id,
         MerchantId = product.MerchantId,
+        MerchantName = merchantName,
         Name = product.Name,
         CategoryId = product.CategoryId,
         Description = product.Description,

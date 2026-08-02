@@ -66,7 +66,7 @@ public sealed class ListProductsQueryHandler(
             .Take(pageSize)
             .ToListAsync(ct);
 
-        return new PagedResult<ProductResponse>(items.Select(ProductMapper.ToResponse).ToList(), total, page, pageSize);
+        return new PagedResult<ProductResponse>(items.Select(p => ProductMapper.ToResponse(p)).ToList(), total, page, pageSize);
     }
 }
 

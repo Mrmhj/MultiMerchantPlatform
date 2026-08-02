@@ -1,5 +1,28 @@
 # 变更记录
 
+## [v6.2] - 2026-08-02
+
+### Added
+- **Phase 2 Week 13：mobile-app 移动端（uni-app，Vue 3 语法，一套代码 iOS/Android/H5）**：
+  - 基于官方模板 `uni-preset-vue#vite-ts` 精简（仅 h5 + app 平台依赖）；H5 dev 端口 5175，Vite 代理 `/api` + `/hub`(ws) → 网关 8000
+  - **8 个页面 + tabBar**：首页（搜索/分类入口/商品列表分页）/ 商品详情（SKU 选择/加购/立即购买）/ 购物车（多商户分组/勾选/数量/删除/结算）/ 订单列表（状态 Tab）/ 订单详情（取消/模拟支付/联系客服）/ 登录注册 / 个人中心 / 在线客服
+  - **在线客服 SignalR**：会话列表（未读数）+ 聊天窗口（实时收发/已读），H5 用 `@microsoft/signalr`，REST 兜底；发起新会话（商户 ID + 客服 ID）
+  - 请求封装：`uni.request` 统一（JWT 注入/baseURL/401 跳登录/错误 toast）；Pinia auth store（storage 持久化）
+  - **product-service 配合改动**：公开商品接口（列表+详情）新增 `merchantName` 字段（批量调 merchant 内部接口带出，失败不阻塞）——供 C 端/移动端加购展示店铺名
+  - 新增模块文档 `docs/modules/mobile-app.md`；冒烟脚本 `tests/smoke-mobile-app.sh`
+
+### Verified
+- `build:h5` 构建通过 + `type-check` 0 错误
+- 移动端冒烟全通过（15 项，经 5175 代理模拟 App 链路）：注册/登录 → 商品列表（含商户名）/搜索 → 补库存（sqlcmd）→ 加购（全字段）→ 购物车 → 下单 → 模拟支付成功 → 订单列表 → IM 私聊创建 → 收发消息/未读数
+- 全量编译 0 警告 0 错误（27 项目）
+
+### Notes
+- 模板坑：`@vue/tsconfig@0.1.3` 含 TS 5.4 已移除选项（importsNotUsedAsValues/preserveValueImports）→ tsconfig 内联配置弃用继承；`uni.request` 的 data 参数类型需收窄（`Record<string, unknown> | string | ArrayBuffer`）
+- 加购字段完整性：cart-service `AddCartItemRequest` 需 merchantName/productName/skuCode 等 → 移动端加购传全字段（商品公开接口带出）
+- 冒烟补库存：下单前置 SKU 库存（`INSERT INTO StockItems`，sqlcmd 相对路径执行）
+
+---
+
 ## [v6.1] - 2026-08-02
 
 ### Added

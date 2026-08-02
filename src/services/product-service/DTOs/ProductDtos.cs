@@ -148,6 +148,9 @@ public sealed record ProductResponse
     /// <summary>所属商户 ID</summary>
     public Guid MerchantId { get; init; }
 
+    /// <summary>商户名称（公开接口带出，C 端展示店铺名）</summary>
+    public string? MerchantName { get; init; }
+
     /// <summary>商品名称</summary>
     public required string Name { get; init; }
 
