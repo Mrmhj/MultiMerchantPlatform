@@ -49,17 +49,17 @@
 | Docker | ❌ 不再需要 | v4 移除依赖 | 全部本地化运行 |
 | E 盘空间 | ✅ 345GB 可用 | 358G 总容量 | 项目根目录 `E:\MultiMerchantPlatform\` |
 
-### Redis 替代方案（无 Docker · 2026-08-02 决策：不装 Memurai）
+### Redis 替代方案（无 Docker · 2026-08-02 决策：不装 Memurai，采用开源 Redis 绿色版）
 
 | 方案 | 说明 | 适用场景 |
 |------|------|---------|
-| **开源 Redis for Windows（绿色版）** | `tporadowski/redis`（Redis 5.0.14 官方代码 Windows 移植，MIT 协议，**解压即用无需安装**） | ⭐ 候选：提供真实 Redis 服务 + 分布式锁（SETNX/RedLock） |
-| **.NET 分布式锁 + 缓存抽象** | `DistributedLock`（可基于 SQL Server 表锁实现，无外部服务）+ `BuildingBlocks.Cache` In-Memory 实现 | ⭐ 候选：零外部依赖，纯代码实现秒杀预扣原子性 |
+| **开源 Redis for Windows（绿色版）** | `tporadowski/redis`（Redis 5.0.14 官方代码 Windows 移植，MIT 协议，**解压即用无需安装**） | ⭐ **采用**（2026-08-02 拍板）：真实 Redis 服务 + 分布式锁（SETNX/RedLock），`StackExchange.Redis` 直接连接 |
+| **.NET 分布式锁 + 缓存抽象** | `DistributedLock`（基于 SQL Server 表锁实现，零外部依赖）+ `BuildingBlocks.Cache` In-Memory 实现 | 备选：Redis 不可用时降级 |
 | **Memurai** | Redis 的 Windows 原生兼容版（**已排除**，2026-08-02 决策不安装） | — |
-| **In-Memory Cache** | .NET `IMemoryCache` + `IDistributedCache` | 开发阶段，单机足够（现状） |
+| **In-Memory Cache** | .NET `IMemoryCache` + `IDistributedCache` | 开发阶段单机可用（现状，Redis 就绪后切换） |
 | **NCache** | .NET 原生分布式缓存 | 需要企业级分布式缓存时 |
 
-> **决策（2026-08-02）**：不安装 Memurai。秒杀/缓存前置用「分布式锁等技术 + Redis 实现」—— 分布式锁保证库存预扣原子性（防超卖），缓存经 `BuildingBlocks.Cache` 抽象承载。**Redis 服务载体待定**：方案 A 用开源 Windows 绿色版 Redis（真实 Redis 服务，需下载解压）；方案 B 用 .NET 分布式锁（基于 SQL Server，零外部依赖）。两案均不引入 Memurai。
+> **决策（2026-08-02 更新）**：不安装 Memurai。秒杀/缓存前置采用**方案 A —— 开源 Redis for Windows 绿色版（tporadowski/redis 5.0.14，MIT 协议，解压即用）**：真实 Redis 服务承载缓存 + 分布式锁（SETNX/RedLock 原子预扣防超卖）。`BuildingBlocks.Cache` 已有 `ICacheService` 抽象与 `AddCacheService(useRedis: true)` 开关，Redis 就绪后实现 `RedisCacheService` 即可切换；本地 Redis 不可用时降级 In-Memory 实现（方案 B 作兜底，不引入 Memurai）。
 
 ---
 

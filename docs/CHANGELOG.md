@@ -5,13 +5,12 @@
 ### Changed
 - **Phase 4 前置技术决策（2026-08-02，用户拍板）**：
   - **不安装 Memurai**（原 Redis 替代方案首选，已排除）
-  - 秒杀/缓存前置改用「分布式锁等技术 + Redis 实现」：分布式锁保证库存预扣原子性（防超卖），缓存经 `BuildingBlocks.Cache` 抽象承载
-  - Redis 服务载体待定（Phase 4 Week 17 开工前确认）：**方案 A** 开源 Redis for Windows 绿色版（`tporadowski/redis` 5.0.14，MIT 协议解压即用）；**方案 B** .NET 分布式锁（`DistributedLock` 基于 SQL Server，零外部依赖）
+  - 秒杀/缓存前置采用**方案 A：开源 Redis for Windows 绿色版**（`tporadowski/redis` 5.0.14，MIT 协议解压即用）—— 真实 Redis 服务承载缓存 + 分布式锁（SETNX/RedLock 原子预扣防超卖）；`BuildingBlocks.Cache` 已留 `ICacheService` 抽象 + `AddCacheService(useRedis: true)` 开关，Redis 就绪后实现 `RedisCacheService` 切换，不可用时降级 In-Memory（方案 B 仅作兜底，不引入 Memurai）
   - **限流熔断组合（用户确认）**：网关入口用 .NET 内置 RateLimiter（`Microsoft.AspNetCore.RateLimiting`，零依赖）+ 服务间调用用 Polly v8（重试/熔断/超时，增强 BuildingBlocks.Communication IServiceClient）
-  - 更新 `docs/PROJECT_PLAN.md` Redis 替代方案章节
+  - 更新 `docs/PROJECT_PLAN.md` Redis 替代方案章节（方案 A 标记为采用）
 
 ### Notes
-- 待办（Phase 4 前置）：① 确认 Redis 载体（A 开源绿色版 / B 纯 .NET 分布式锁）；② 一键启动脚本 `scripts/start-all.ps1` + 部署文档 `docs/guides/local-deployment.md`（当前缺失）；③ Aspire AppHost 仅注册 8 服务待补全
+- 待办（Phase 4 Week 17 秒杀开工前）：① 下载 tporadowski/redis 绿色版并启动（默认 6379）；② 实现 `RedisCacheService`（StackExchange.Redis）+ 分布式锁（SETNX/RedLock）；③ 网关 RateLimiter + IServiceClient 接 Polly；④ 一键启动脚本 `scripts/start-all.ps1` + 部署文档 `docs/guides/local-deployment.md`；⑤ Aspire AppHost 仅注册 8 服务待补全
 
 ---
 ## [v7.0] - 2026-08-02
