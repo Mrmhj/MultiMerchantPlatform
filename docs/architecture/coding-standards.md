@@ -188,3 +188,39 @@
 - ❌ 禁止散落 `SaveChangesAsync`（必须 UnitOfWork 统一）
 - ❌ 禁止 `DateTime.Now` 直用（必须 TimeProvider）
 - ❌ 禁止 API 无 XML 注解或屏蔽 CS1591（Swagger 空白即不合格）
+- ❌ **禁止任何涉密信息提交 Git**（见第十一节，违规提交即红线）
+
+---
+
+## 十一、涉密信息管理规范（强制，2026-08-02 起执行）
+
+### 涉密信息范围
+
+| 类别 | 示例 | 存放位置 |
+|---|---|---|
+| 数据库连接串 | `Server=...;User Id=sa;Password=...` | 本地 `appsettings.json` |
+| JWT 签名密钥 | `Jwt:SecretKey` | 本地 `appsettings.json` |
+| 服务间调用密钥 | `Internal:Key`（X-Internal-Key） | 本地 `appsettings.json` |
+| 第三方凭证 | SMTP 密码、短信/Push 网关密钥、支付密钥 | 本地 `appsettings.json` / 环境变量 |
+| 证书私钥 | `*.pfx` `*.p12` `*.key` `*.pem`（私钥） | 本机证书库 / 安全目录 |
+| 环境变量凭据 | 前端 `.env*` 中的真实地址+凭据 | 本地 `.env.local` |
+
+### 强制规则
+
+1. **本地实际配置一律不入库**：各服务 `appsettings.json` / `appsettings.*.json`（Development/Production 等）全部 Git 忽略，仅提交 `appsettings.Example.json` 模板（敏感值用占位符 `__XXX__`：`__DB_PASSWORD__` / `__JWT_SECRET__` / `__INTERNAL_KEY__` / `__PASSWORD__`）
+2. **新服务必建模板**：新增服务创建 `appsettings.json` 后必须同步生成 `appsettings.Example.json`（结构一致、敏感值占位符），否则不予验收
+3. **前端 env 模板化**：`.env.production` 等实际配置不入库，提供 `.env.production.example` 模板
+4. **禁止硬编码密钥兜底**：配置读取禁止 `GetValue("...", "真实密钥")` 兜底；缺配置应启动失败而不是静默降级
+5. **密钥轮换**：一旦发现密钥已进入 Git 历史（含远端仓库），必须立即轮换新值（所有服务同步），并在 CHANGELOG 记录
+6. **Git 提交前检查**：`git status` 确认无 `appsettings.json`/`.env*`（非 example）后提交；新增敏感文件类型先更新 `.gitignore`
+7. **历史清理**：存量敏感值已在远端历史的，评估风险后决定是否 `git filter-repo` 改写历史（需 force push，仅限仓库唯一使用人，先备份）
+
+### 占位符约定
+
+| 占位符 | 含义 |
+|---|---|
+| `__DB_PASSWORD__` | 数据库连接串密码 |
+| `__JWT_SECRET__` | JWT 签名密钥 |
+| `__INTERNAL_KEY__` | X-Internal-Key 服务间调用密钥 |
+| `__PASSWORD__` | 通用密码字段（SMTP/第三方） |
+

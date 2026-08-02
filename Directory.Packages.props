@@ -60,6 +60,9 @@
     <!-- MailKit 邮件 -->
     <PackageVersion Include="MailKit" Version="4.8.0" />
 
+    <!-- Redis 缓存（Phase 4 秒杀/缓存前置，方案 A 绿色版 Redis） -->
+    <PackageVersion Include="StackExchange.Redis" Version="2.8.16" />
+
     <!-- Razor 模板渲染 -->
     <PackageVersion Include="RazorLight" Version="2.3.1" />
 

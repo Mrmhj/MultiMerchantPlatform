@@ -78,17 +78,25 @@ yarn-error.log*
 *.keystore
 !debug.keystore
 
-## ── 环境与密钥 ──
-appsettings.Development.json
-appsettings.Local.json
-appsettings.Production.json
+## ── 环境与密钥（涉密信息禁止入库，仅提交 Example 模板） ──
+# 本地实际配置一律忽略（含连接串/密码/JWT 密钥/内部调用密钥）
+**/appsettings.json
+**/appsettings.*.json
+!**/appsettings.Example.json
 *.pfx
 *.p12
 *.key
 !*.pub.key
+*.pem
+*.crt
+*.jks
+**/secrets/
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
+!.env.example
 
 ## ── 数据库 ──
 *.mdf
