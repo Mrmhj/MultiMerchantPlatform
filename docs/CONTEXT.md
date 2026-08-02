@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v6.2 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
+> 版本对应：v6.3 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
 
 ---
 
@@ -32,6 +32,7 @@
 | **logistics-service** | 8013 | MMP_Logistics | ✅ v5.9 | 物流（运单/轨迹/公司，订单发货联动） |
 | **settlement-service** | 8014 | MMP_Settlement | ✅ v5.9 | 结算（佣金规则/结算单/幂等生成） |
 | **im-service** | 8016 | MMP_IM | ✅ v6.0 | 即时通讯（SignalR：私聊/客服群/已读/离线补推/内部推送） |
+| **performance-service** | 8017 | MMP_Infra | ✅ v6.3 | 压测（HTTP 并发/HTML 报告）+ 监控（内存/CPU/GC/线程池）+ 告警 |
 | messaging-service | 8010 | MMP_Infra | ✅ | 消息总线（Outbox/通配订阅） |
 | logging-service | 8011 | MMP_Infra | ✅ | 日志批量上报/查询/统计 |
 | email-service | 8015 | MMP_Email | ✅ | 邮件（MailKit/DryRun/模板/重试） |
@@ -43,6 +44,7 @@
 
 ## 三、当前进度
 
+- **Phase 3 Week 14 已完成**：performance-service 压测+内存监控（提交见 git log）—— Phase 3 首个服务
 - **Phase 2 Week 13 已完成**：mobile-app 移动端骨架（提交见 git log）—— **Phase 2 全部完成**
 - **Phase 2 Week 12-13 已完成**：web-merchant 商户端 Web 前端（提交见 git log）
 - **Phase 2 Week 12 已完成**：im-service（提交见 git log）
@@ -55,11 +57,11 @@
 
 ## 四、下一步（按 PROJECT_PLAN.md 路线图）
 
-> **Phase 2 已全部完成**（cart→search→promotion→review→logistics→settlement→im→web-merchant→mobile-app）
+> **Phase 3 进行中**（performance-service ✅ → risk-service → notification-service → Electron → BI）
 
 | 周次 | 任务 | 端口/说明 |
 |---|---|---|
-| 14 | performance-service（压测+内存监控） | 8017 |
+| 14 | ~~performance-service（压测+内存监控）~~ | 8017 ✅ |
 | 14 | risk-service（风控/反刷单） | 8018 |
 | 15 | notification-service（通知中心） | 8019 |
 | 15-16 | 桌面端 Electron | 桌面应用可运行 |

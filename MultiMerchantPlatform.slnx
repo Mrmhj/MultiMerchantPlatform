@@ -28,6 +28,7 @@
     <Project Path="src/services/messaging-service/MessagingService.csproj" />
     <Project Path="src/services/order-service/OrderService.csproj" />
     <Project Path="src/services/pay-service/PayService.csproj" />
+    <Project Path="src/services/performance-service/PerformanceService.csproj" />
     <Project Path="src/services/product-service/ProductService.csproj" />
     <Project Path="src/services/promotion-service/PromotionService.csproj" />
     <Project Path="src/services/review-service/ReviewService.csproj" />

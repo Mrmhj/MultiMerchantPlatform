@@ -19,10 +19,15 @@ var loggingService = builder.AddProject<Projects.LoggingService>("logging-servic
 var emailService = builder.AddProject<Projects.EmailService>("email-service")
     .WithEndpoint(name: "http", port: 8015, targetPort: 8080);
 
+// Phase 3: 压测 + 内存监控 (port 8017)
+var performanceService = builder.AddProject<Projects.PerformanceService>("performance-service")
+    .WithEndpoint(name: "http", port: 8017, targetPort: 8080);
+
 // 网关转发基础设施服务接口
 apiGateway.WithReference(messagingService);
 apiGateway.WithReference(loggingService);
 apiGateway.WithReference(emailService);
+apiGateway.WithReference(performanceService);
 
 // ── 核心业务服务 (Phase 1) ──
 // - identity-service (port 8001)

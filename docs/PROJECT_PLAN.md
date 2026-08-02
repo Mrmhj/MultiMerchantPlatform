@@ -721,7 +721,7 @@ src/apps/
 
 | 周 | 任务 | 产出 |
 |----|------|------|
-| 14 | **performance-service**（压测+内存监控） | 监控看板可用 |
+| 14 | **performance-service**（压测+内存监控） | 监控看板可用 ✅ v6.3 |
 | 14 | risk-service（风控/反刷单） | 风控规则引擎 |
 | 15 | notification-service（通知中心） | 短信/站内信/Push |
 | 15-16 | **桌面端 Electron** | 桌面应用可运行 |

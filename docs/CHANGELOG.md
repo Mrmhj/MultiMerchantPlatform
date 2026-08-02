@@ -1,5 +1,29 @@
 # 变更记录
 
+## [v6.3] - 2026-08-02
+
+### Added
+- **Phase 3 Week 14：performance-service（8017 压测 + 内存监控）**：
+  - **压测引擎**（LoadTestEngine）：Channel 队列 + BackgroundService 后台执行；并发 worker 模型（Interlocked + ConcurrentBag 线程安全统计）；实时统计 QPS / 平均 / P50 / P95 / P99 / 最大延迟 / 错误率；手动停止（CancellationToken 联动，→ Cancelled）与进程关闭优雅取消
+  - **HTML 报告**：自包含单文件（内联 CSS + SVG 条形图，无外部依赖），自动输出 `docs/reports/loadtest-*.html`，API 可下载
+  - **监控采集器**（MetricsCollector）：每 15s 并行轮询 17 个目标（网关 + 16 服务）健康探测 + 拉取 `/api/metrics` 完整指标；未暴露指标端点的服务降级为 HTTP 层监控；自身进程指标（GC/Process/ThreadPool）作为参照基准
+  - **标准指标端点**：`GET /api/metrics`（X-Internal-Key 校验）暴露本服务进程指标 —— 其他微服务按此 schema 接入即可纳入完整监控
+  - **告警评估**（AlertEvaluator）：内存 / 响应时间 / 连续不可达（3 次防抖）→ Warning/Critical 告警；恢复自动关闭 + 手动关闭 API；同键去重防重复告警
+  - **数据模型**：MMP_Infra 库 4 张表（LoadTestTasks / LoadTestRuns 含任务快照 / MetricsSnapshots / AlertRecords），充血实体 + 状态机（Queued→Running→Completed/Failed/Cancelled、Open→Resolved）
+  - 分层：Mediator + CQRS 强制；admin 角色保护全部管理接口；网关 `/api/performance/**` 路由 + AspireHost 编排接入
+  - 新增模块文档 `docs/modules/performance-service.md`；冒烟脚本 `tests/smoke-performance.sh`
+
+### Verified
+- 全量编译 0 警告 0 错误（28 项目，含 AspireHost）
+- performance 冒烟 **31/31 通过**：鉴权拦截（401/403/内部密钥）→ 任务 CRUD + 参数校验 → 启动压测 Completed（QPS/P99/错误率统计）→ HTML 报告落盘 + 下载 → 长任务停止 Cancelled → 监控采集（宕机服务 isUp=false + 服务列表）→ ServiceDown 告警生成与手动关闭 → 运行历史分页
+
+### Notes
+- 冒烟提权路径坑：sqlcmd `-i` 必须与 SQL 文件同目录（cd + 相对文件名），写 `/tmp` 读 Windows 路径会静默失败 → 脚本已内置 `cd "$(dirname "$0")"` 处理
+- 沙箱 bash 无 GNU sleep → 脚本内置 `sleep()` 函数（node 兜底）
+- BackgroundService 需同时 `AddSingleton<T>` + `AddHostedService(sp => sp.GetRequiredService<T>())` 才能被 Controller 注入调用
+
+---
+
 ## [v6.2] - 2026-08-02
 
 ### Added
