@@ -1,0 +1,25 @@
+# 统一换行符为 LF（提交时不产生 CRLF 警告噪音）
+* text=auto
+
+# 指定文本文件强制 LF
+*.cs text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.csproj text eol=lf
+*.props text eol=lf
+*.slnx text eol=lf
+*.ts text eol=lf
+*.vue text eol=lf
+*.html text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sql text eol=lf
+*.sh text eol=lf
+.gitignore text eol=lf
+
+# 二进制文件不转换
+*.dll binary
+*.exe binary
+*.png binary
+*.jpg binary
+*.ico binary
