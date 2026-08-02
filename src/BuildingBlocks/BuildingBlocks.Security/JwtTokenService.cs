@@ -58,7 +58,8 @@ public interface ICurrentUser
 /// </summary>
 public record JwtOptions
 {
-    public required string SecretKey { get; init; } = "MultiMerchantPlatform_DefaultSecretKey_2026_Min32Chars!";
+    /// <summary>JWT 签名密钥（至少 32 字符；生产必须通过配置注入，勿用默认值）</summary>
+    public string SecretKey { get; init; } = "MultiMerchantPlatform_DefaultSecretKey_2026_Min32Chars!";
     public string Issuer { get; init; } = "MultiMerchantPlatform";
     public string Audience { get; init; } = "MultiMerchantPlatform Clients";
     public int ExpiryMinutes { get; init; } = 120;

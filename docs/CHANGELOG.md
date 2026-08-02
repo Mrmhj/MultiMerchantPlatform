@@ -1,5 +1,68 @@
 # 变更记录
 
+## [v4.7] - 2026-08-02
+
+### Added
+- **Phase 1 Week 4 启动：开发完成 identity-service（用户认证微服务，端口 8001）**：
+  - 注册（邮箱唯一，注册即登录）+ 登录（密码校验）+ JWT 签发（复用 BuildingBlocks.Security）
+  - 登录失败锁定：连续 5 次错误锁定 15 分钟（AuthOptions 可配置）
+  - 密码安全：PBKDF2-SHA256（100k 迭代 + 随机盐 + 恒定时间比较），无第三方依赖
+  - 数据库：MMP_Identity 库 Users 表（Email 唯一索引）
+  - 网关路由：`/api/identity/**` → 8001（YARP 预置路由生效）
+  - **首个按编码规范 Phase 1 分层落地的服务**：Mediator + CQRS（Command/Query + Handler 自动扫描注册）、User 充血实体（状态机内聚）、全部 API XML 注解、Swagger 带 Bearer 认证按钮
+- **BuildingBlocks.Core 新基建**：
+  - `Mediator` 实现（IMediator 默认实现，DI 路由 Handler）
+  - `AddCqrsHandlers` 程序集扫描注册 CQRS 处理器
+  - 引用 Microsoft.Extensions.DependencyInjection.Abstractions
+- **BuildingBlocks.Security 修复**：JwtOptions.SecretKey 去掉 required（required 带默认值属反模式）
+- 新增模块文档 `docs/modules/identity-service.md`
+
+### Verified
+- 全量编译 0 警告 0 错误（Release，15 个项目）
+- 冒烟测试全通过：注册 → 重复注册409 → 登录 → JWT 查 me → 无 token 401 → 5 次失败锁定 → 锁定后拒登 → 网关转发
+
+### Notes
+- 踩坑记录：JWT sub/role claim 默认被 inbound 映射改名，须 `MapInboundClaims=false` 保留原始 claim；Microsoft.OpenApi 2.0 中 SecurityRequirement 用 `OpenApiSecuritySchemeReference`
+
+---
+
+## [v4.6] - 2026-08-02
+
+### Added
+- **三个服务 API 全量补 XML 注解**（messaging / logging / email，约 100+ 处）：
+  - Controller 类 + 全部 Action 的 summary/param/returns（10 个 Controller）
+  - DTO 请求/响应类全部属性注释（3 个 DTO 文件）
+  - 实体构造函数 / 领域方法 / DbContext DbSet / DI 注册扩展 注释补全
+- 三个服务 csproj 开启 `GenerateDocumentationFile=true` + 取消 CS1591 屏蔽（缺注释编译即警告）
+- Program.cs SwaggerGen 配置 `IncludeXmlComments`，Swagger UI 展示全部注解
+- **编码规范新增第八节「API 注解规范」**（docs/architecture/coding-standards.md）：
+  - API 项目必须开 XML 生成且不得屏蔽 CS1591；注释覆盖范围；SwaggerGen 加载配置；0 警告 0 错误验收口径
+  - Phase 1 验收标准追加「API 注解」条款；禁止事项追加「API 无注解即不合格」
+
+### Verified
+- 三个服务 Release 编译全部 0 警告 0 错误
+- Swagger UI 注解展示正常（Controller/Action/参数/DTO 属性均有描述）
+
+### Notes
+- 踩坑记录：Swashbuckle 7.0.0 与 .NET 10 不兼容（TypeLoadException），升级至 10.1.7（v4.5 已记）
+
+---
+
+## [v4.5] - 2026-08-02
+
+### Added
+- 新增编码规范文档 `docs/architecture/coding-standards.md`（v1.0，全项目强制）：
+  - 三大特性规范：封装（private set + 领域方法 + 充血模型，EmailMessage 为样板）/ 继承（Entity/MultiTenantEntity 体系）/ 多态（6 处扩展点接口）
+  - 设计模式应用清单（Aggregate Root / Specification / Mediator+CQRS / UnitOfWork / Strategy / Observer / Factory / Template Method）
+  - 开闭原则、高内聚低耦合、消息订阅（Pub/Sub）落地要求
+  - **Phase 1 业务服务开发规范（10 条强制）**：Mediator 分层（Controller→IMediator→Handler→领域服务→Repository）、CQRS 分离、订阅收敛到网关、多租户隔离、UnitOfWork 事务、消息幂等、邮件接入方式、每服务验收标准
+  - 禁止事项红线（Controller 直连仓储 / 裸 setter / 改旧代码扩展 / 散落 SaveChanges / DateTime.Now 等）
+
+### Notes
+- 文档分类约定落地：架构/规范类归 `docs/architecture/`，索引与 DOC_INDEX.md 已同步
+
+---
+
 ## [v4.4] - 2026-08-02
 
 ### Added

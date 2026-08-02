@@ -7,7 +7,8 @@
 | 文档 | 路径 | 状态 | 说明 |
 |------|------|------|------|
 | 项目方案 | `E:\MultiMerchantPlatform\docs\PROJECT_PLAN.md` | ✅ v4.1 | 总体规划，每次方案调整更新 |
-| 架构设计 | `E:\MultiMerchantPlatform\docs\ARCHITECTURE.md` | 📝 待编写 | 技术架构详细设计 |
+| 架构设计 | `E:\MultiMerchantPlatform\docs\architecture\ARCHITECTURE.md` | 📝 待编写 | 技术架构详细设计 |
+| 编码规范 | `E:\MultiMerchantPlatform\docs\architecture\coding-standards.md` | ✅ v1.0 | 全项目强制规范（含 Phase 1 业务开发规范） |
 | API 规范 | `E:\MultiMerchantPlatform\docs\API_SPEC.md` | 📝 待编写 | 所有微服务 API 接口文档 |
 | 数据库设计 | `E:\MultiMerchantPlatform\docs\DATABASE.md` | 📝 待编写 | 所有数据库表结构设计 |
 | 部署指南 | `E:\MultiMerchantPlatform\docs\DEPLOYMENT.md` | 📝 待编写 | 部署与运维操作指南 |
@@ -20,7 +21,7 @@
 
 | 模块 | 路径 | 状态 | 优先级 |
 |------|------|------|--------|
-| identity-service | `docs/modules/identity-service.md` | 📝 待编写 | P0 |
+| identity-service | `docs/modules/identity-service.md` | ✅ 已完成 (v4.7) | P0 (Phase 1 Week 4) |
 | merchant-service | `docs/modules/merchant-service.md` | 📝 待编写 | P0 |
 | product-service | `docs/modules/product-service.md` | 📝 待编写 | P0 |
 | order-service | `docs/modules/order-service.md` | 📝 待编写 | P0 |
