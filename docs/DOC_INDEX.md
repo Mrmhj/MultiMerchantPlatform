@@ -28,6 +28,7 @@
 | stock-service | `docs/modules/stock-service.md` | 📝 待编写 | P0 |
 | messaging-service | `docs/modules/messaging-service.md` | ✅ 已完成 (v4.2) | P0 |
 | logging-service | `docs/modules/logging-service.md` | ✅ 已完成 (v4.3) | P0 |
+| email-service | `docs/modules/email-service.md` | ✅ 已完成 (v4.4) | P0 (Phase 0 Week 3) |
 
 ### P1 支撑服务
 
@@ -39,7 +40,6 @@
 | review-service | `docs/modules/review-service.md` | 📝 待编写 | P1 |
 | logistics-service | `docs/modules/logistics-service.md` | 📝 待编写 | P1 |
 | settlement-service | `docs/modules/settlement-service.md` | 📝 待编写 | P1 |
-| email-service | `docs/modules/email-service.md` | 📝 待编写 | P1 (v4新增) |
 
 ### P2 平台服务
 

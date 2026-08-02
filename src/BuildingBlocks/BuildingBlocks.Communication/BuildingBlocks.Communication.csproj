@@ -7,6 +7,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Grpc.Net.Client" />
+    <PackageReference Include="Grpc.Core.Api" />
   </ItemGroup>
 
 </Project>

@@ -53,6 +53,10 @@
     <!-- SignalR -->
     <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.0" />
 
+    <!-- gRPC -->
+    <PackageVersion Include="Grpc.Net.Client" Version="2.80.0" />
+    <PackageVersion Include="Grpc.Core.Api" Version="2.80.0" />
+
     <!-- MailKit 邮件 -->
     <PackageVersion Include="MailKit" Version="4.8.0" />
 

@@ -63,7 +63,11 @@ public static class ServiceCollectionExtensions
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
         }
-        // gRPC 策略在需要时添加: services.AddGrpcClient<IServiceClient, GrpcServiceClient>(...)
+        else
+        {
+            // gRPC 策略（JSON-gRPC 模式）：单例封装 GrpcChannel
+            services.AddSingleton<IServiceClient>(_ => new GrpcServiceClient(baseUrl));
+        }
 
         return services;
     }

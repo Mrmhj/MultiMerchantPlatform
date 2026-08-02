@@ -1,5 +1,32 @@
 # 变更记录
 
+## [v4.4] - 2026-08-02
+
+### Added
+- 开发完成 **email-service**（自封装邮件微服务，Phase 0 Week 3）：
+  - 邮件发送（MailKit SMTP）+ DryRun 开发模式（本地无 SMTP 可模拟）
+  - Razor 模板渲染（RazorLight，@Model.xxx 变量插值）+ 模板 CRUD
+  - 发送状态机：Pending/Sent/Failed/DeadLetter + 后台指数退避重试（60s ×2 上限 10min）
+  - API：发送/批量/状态查询/手动重试/死信 + 模板管理 + 健康检查
+  - 数据库：MMP_Email 库（EmailMessage / EmailTemplate）
+  - 网关路由：`/api/emails/**`、`/api/templates/**` → 8015
+- **BuildingBlocks.Data ORM 切换完善**（Strategy + Factory 模式）：
+  - `SqlSugarRepository<T>`（SqlSugar 实现，InsertableByObject 兼容 EF 风格实体）
+  - `DapperRepository<T>`（Dapper 实现，反射生成 SQL + 存储过程扩展点）
+  - `IOrmStrategy` 策略标记 + `IRepositoryFactory` 仓储工厂（按 DataOptions.DefaultOrm 自动解析）
+  - `AddDataLayer` 完整注册三种 ORM 实现与 SqlSugarScope 单例
+- **BuildingBlocks.Communication gRPC 完善**：
+  - `GrpcServiceClient`：JSON-gRPC 模式通用客户端（path 格式 "ServiceName/MethodName"）
+  - `AddServiceClient` 支持 `CommunicationProtocol.Grpc` 注册
+  - 新增 Grpc.Net.Client / Grpc.Core.Api 2.80.0（匹配 Aspire 13.4.6 依赖链）
+- 新增模块文档 `docs/modules/email-service.md`
+
+### Verified
+- 全量编译 0 警告 0 错误（Release，14 个项目）
+- email-service 冒烟测试通过：健康检查 → 创建模板 → 模板渲染发送（Welcome Xiaoma!）→ 直接发送 → 分页查询
+
+---
+
 ## [v4.3] - 2026-08-02
 
 ### Added

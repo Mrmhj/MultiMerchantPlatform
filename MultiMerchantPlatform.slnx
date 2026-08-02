@@ -18,6 +18,7 @@
     <Project Path="src/gateways/ApiGateway/ApiGateway.csproj" />
   </Folder>
   <Folder Name="/src/services/">
+    <Project Path="src/services/email-service/EmailService.csproj" />
     <Project Path="src/services/logging-service/LoggingService.csproj" />
     <Project Path="src/services/messaging-service/MessagingService.csproj" />
   </Folder>
