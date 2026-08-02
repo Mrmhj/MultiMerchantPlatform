@@ -11,6 +11,9 @@ namespace MessagingService.Controllers;
 [Route("api/[controller]")]
 public sealed class HealthController(MessagingDbContext db, ILogger<HealthController> logger) : ControllerBase
 {
+    /// <summary>健康检查 — 服务存活 + 数据库连通性</summary>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>200（数据库正常）或 503（数据库不可达）</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]

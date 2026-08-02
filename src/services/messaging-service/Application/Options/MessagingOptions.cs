@@ -5,6 +5,7 @@ namespace MessagingService.Application.Options;
 /// </summary>
 public sealed class MessagingOptions
 {
+    /// <summary>配置节名称（appsettings.json 的 Messaging 节点）</summary>
     public const string SectionName = "Messaging";
 
     /// <summary>后台分发器轮询间隔（秒）</summary>

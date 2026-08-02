@@ -18,6 +18,9 @@ namespace EmailService.Controllers;
 public sealed class EmailsController(EmailSender sender, EmailDbContext db) : ControllerBase
 {
     /// <summary>发送一封邮件（支持模板渲染，失败自动进入重试队列）</summary>
+    /// <param name="request">发送邮件请求（收件人 + 正文或模板）</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>201 — 邮件状态记录</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -28,6 +31,9 @@ public sealed class EmailsController(EmailSender sender, EmailDbContext db) : Co
     }
 
     /// <summary>批量发送邮件</summary>
+    /// <param name="requests">发送邮件请求列表（非空）</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>201 — 邮件状态记录数组</returns>
     [HttpPost("batch")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<EmailResponse[]>> SendBatch(
@@ -42,6 +48,12 @@ public sealed class EmailsController(EmailSender sender, EmailDbContext db) : Co
     }
 
     /// <summary>分页查询邮件（状态/收件人过滤）</summary>
+    /// <param name="status">按状态过滤（可选）</param>
+    /// <param name="to">按收件人模糊过滤（可选）</param>
+    /// <param name="page">页码（默认 1）</param>
+    /// <param name="pageSize">每页条数（默认 20，上限 100）</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>200 — 分页邮件列表</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResult<EmailResponse>>> Query(
@@ -71,6 +83,9 @@ public sealed class EmailsController(EmailSender sender, EmailDbContext db) : Co
     }
 
     /// <summary>按 Id 查询邮件</summary>
+    /// <param name="id">邮件记录 ID</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>200 — 邮件状态；404 — 邮件不存在</returns>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -81,6 +96,9 @@ public sealed class EmailsController(EmailSender sender, EmailDbContext db) : Co
     }
 
     /// <summary>手动重试（重置失败/死信邮件）</summary>
+    /// <param name="id">邮件记录 ID</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>200 — 重置后的邮件状态；404 — 邮件不存在</returns>
     [HttpPost("{id:guid}/retry")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -91,6 +109,10 @@ public sealed class EmailsController(EmailSender sender, EmailDbContext db) : Co
     }
 
     /// <summary>手动转死信</summary>
+    /// <param name="id">邮件记录 ID</param>
+    /// <param name="reason">转死信原因（可选）</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>200 — 转死信后的邮件状态；404 — 邮件不存在</returns>
     [HttpPost("{id:guid}/deadletter")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

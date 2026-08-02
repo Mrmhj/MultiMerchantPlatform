@@ -8,8 +8,10 @@ namespace LoggingService.Infrastructure.Persistence;
 /// </summary>
 public sealed class LoggingDbContext(DbContextOptions<LoggingDbContext> options) : DbContext(options)
 {
+    /// <summary>日志表</summary>
     public DbSet<LogEntry> Logs => Set<LogEntry>();
 
+    /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -12,6 +12,10 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class MessagingServiceDependencyInjection
 {
+    /// <summary>注册 messaging-service 全部服务（配置 / 数据库 / 发布器 / 订阅管理 / 后台分发器）</summary>
+    /// <param name="services">服务集合</param>
+    /// <param name="configuration">应用配置</param>
+    /// <returns>服务集合（链式调用）</returns>
     public static IServiceCollection AddMessagingService(this IServiceCollection services, IConfiguration configuration)
     {
         // 配置

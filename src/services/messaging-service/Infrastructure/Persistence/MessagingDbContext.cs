@@ -8,12 +8,16 @@ namespace MessagingService.Infrastructure.Persistence;
 /// </summary>
 public sealed class MessagingDbContext(DbContextOptions<MessagingDbContext> options) : DbContext(options)
 {
+    /// <summary>消息发件箱表</summary>
     public DbSet<MessageOutbox> MessageOutboxes => Set<MessageOutbox>();
 
+    /// <summary>订阅表</summary>
     public DbSet<MessageSubscription> Subscriptions => Set<MessageSubscription>();
 
+    /// <summary>幂等记录表</summary>
     public DbSet<MessageIdempotency> IdempotencyRecords => Set<MessageIdempotency>();
 
+    /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

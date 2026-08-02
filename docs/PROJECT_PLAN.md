@@ -701,6 +701,11 @@ src/apps/
 | 8 | stock-service（扣减/预占/回滚） | 库存系统 |
 | 9 | C端 Web 前端（Vue 3 + Vite + Element Plus） | C端商城可浏览下单 |
 
+> **Phase 1 开发规范（强制）**：业务服务必须遵循 `docs/architecture/coding-standards.md`
+> 第七节 10 条规范 —— Mediator 分层（Controller→IMediator→Handler→领域服务→Repository）、
+> CQRS 分离、实体充血模型（private set + 领域方法）、多租户隔离、UnitOfWork 事务、消息幂等、
+> 订阅收敛到网关、每服务验收标准（编译 0 警告 + 冒烟测试 + 模块文档 + CHANGELOG + 网关路由）。
+
 ### Phase 2：辅助功能 + 多端（第 10-13 周）
 
 | 周 | 任务 | 产出 |

@@ -16,6 +16,9 @@ namespace MessagingService.Controllers;
 public sealed class SubscriptionsController(SubscriptionManager manager, MessagingDbContext db) : ControllerBase
 {
     /// <summary>注册订阅（已存在则重新激活，幂等）</summary>
+    /// <param name="request">注册订阅请求（事件名 + 回调地址）</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>201 — 订阅记录</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -27,7 +30,11 @@ public sealed class SubscriptionsController(SubscriptionManager manager, Messagi
         return CreatedAtAction(nameof(List), new { }, ToResponse(subscription));
     }
 
-    /// <summary>查询订阅列表（支持事件名过滤）</summary>
+    /// <summary>查询订阅列表（支持事件名 / 启用状态过滤）</summary>
+    /// <param name="eventName">按事件名过滤（可选）</param>
+    /// <param name="active">按启用状态过滤（可选）</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>200 — 订阅列表</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<SubscriptionResponse>>> List(
@@ -49,6 +56,9 @@ public sealed class SubscriptionsController(SubscriptionManager manager, Messagi
     }
 
     /// <summary>取消订阅（软停用）</summary>
+    /// <param name="id">订阅 ID</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>204 — 已停用；404 — 订阅不存在</returns>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -59,6 +69,9 @@ public sealed class SubscriptionsController(SubscriptionManager manager, Messagi
     }
 
     /// <summary>启用订阅</summary>
+    /// <param name="id">订阅 ID</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>200 — 启用后的订阅记录；404 — 订阅不存在</returns>
     [HttpPost("{id:guid}/activate")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

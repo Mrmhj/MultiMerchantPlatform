@@ -11,6 +11,12 @@ public sealed class MessageOutbox : Entity
 {
     private MessageOutbox() { } // EF Core
 
+    /// <summary>创建待发送消息（初始状态 Pending）</summary>
+    /// <param name="messageId">业务消息 ID（全局唯一）</param>
+    /// <param name="eventName">事件名称，如 order.created</param>
+    /// <param name="payload">消息体（JSON）</param>
+    /// <param name="routingKey">路由键（可选）</param>
+    /// <param name="maxRetryCount">最大重试次数（默认 5）</param>
     public MessageOutbox(
         Guid messageId,
         string eventName,

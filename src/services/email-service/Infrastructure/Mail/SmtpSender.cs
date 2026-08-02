@@ -7,13 +7,14 @@ using MimeKit;
 
 namespace EmailService.Infrastructure.Mail;
 
-/// <summary>
-/// SMTP 发送器接口（Strategy 模式 — 可替换为其他发送渠道）。
-/// </summary>
-public interface ISmtpSender
-{
-    Task SendAsync(EmailMessage email, CancellationToken ct = default);
-}
+    /// <summary>SMTP 发送器接口（Strategy 模式 — 可替换为其他发送渠道）。</summary>
+    public interface ISmtpSender
+    {
+        /// <summary>发送一封邮件（DryRun 模式下仅记录日志，不真实投递）</summary>
+        /// <param name="email">待发送邮件实体</param>
+        /// <param name="ct">取消令牌</param>
+        Task SendAsync(EmailMessage email, CancellationToken ct = default);
+    }
 
 /// <summary>
 /// MailKit SMTP 发送器。

@@ -7,6 +7,17 @@ public sealed class LogEntry
 {
     private LogEntry() { } // EF Core
 
+    /// <summary>创建日志条目（客户端上报时构建）</summary>
+    /// <param name="id">日志 ID</param>
+    /// <param name="serviceName">来源服务名</param>
+    /// <param name="level">日志级别</param>
+    /// <param name="message">日志消息</param>
+    /// <param name="exception">异常堆栈（可选）</param>
+    /// <param name="traceId">链路追踪 ID（可选）</param>
+    /// <param name="spanId">Span ID（可选）</param>
+    /// <param name="category">日志分类（可选）</param>
+    /// <param name="propertiesJson">附加属性 JSON（可选）</param>
+    /// <param name="timestamp">日志产生时间（缺省当前时间）</param>
     public LogEntry(
         Guid id,
         string serviceName,
@@ -31,6 +42,7 @@ public sealed class LogEntry
         Timestamp = timestamp ?? DateTime.UtcNow;
     }
 
+    /// <summary>日志 ID</summary>
     public Guid Id { get; private set; }
 
     /// <summary>来源服务名（如 order-service）</summary>

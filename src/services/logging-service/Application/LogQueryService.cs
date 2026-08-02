@@ -10,6 +10,10 @@ namespace LoggingService.Application;
 /// </summary>
 public sealed class LogQueryService(LoggingDbContext db)
 {
+    /// <summary>分页查询日志（按服务 / 级别 / 关键字 / 时间范围过滤）</summary>
+    /// <param name="query">查询条件 DTO</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>分页日志列表</returns>
     public async Task<PagedResult<LogResponse>> QueryAsync(LogQueryDto query, CancellationToken ct = default)
     {
         var page = Math.Max(1, query.Page);
@@ -39,6 +43,10 @@ public sealed class LogQueryService(LoggingDbContext db)
             items.Select(ToResponse).ToList(), total, page, pageSize);
     }
 
+    /// <summary>按 Id 查询日志详情</summary>
+    /// <param name="id">日志 ID</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>日志详情（不存在返回 null）</returns>
     public async Task<LogResponse?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         var entity = await db.Logs.AsNoTracking().FirstOrDefaultAsync(l => l.Id == id, ct);

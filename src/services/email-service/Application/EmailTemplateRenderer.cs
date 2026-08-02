@@ -12,6 +12,7 @@ public sealed class EmailTemplateRenderer
 {
     private readonly RazorLightEngine _engine;
 
+    /// <summary>初始化 RazorLight 引擎（内存缓存，模板编译后复用）</summary>
     public EmailTemplateRenderer()
     {
         _engine = new RazorLightEngineBuilder()

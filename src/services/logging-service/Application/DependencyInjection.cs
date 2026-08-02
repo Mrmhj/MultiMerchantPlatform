@@ -9,6 +9,10 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class LoggingServiceDependencyInjection
 {
+    /// <summary>注册 logging-service 全部服务（配置 / 数据库 / 写入 / 查询 / 统计）</summary>
+    /// <param name="services">服务集合</param>
+    /// <param name="configuration">应用配置</param>
+    /// <returns>服务集合（链式调用）</returns>
     public static IServiceCollection AddLoggingService(this IServiceCollection services, IConfiguration configuration)
     {
         // 数据库

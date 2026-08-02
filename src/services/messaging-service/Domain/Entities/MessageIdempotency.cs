@@ -10,6 +10,9 @@ public sealed class MessageIdempotency : Entity
 {
     private MessageIdempotency() { } // EF Core
 
+    /// <summary>创建幂等记录</summary>
+    /// <param name="messageId">消息 ID</param>
+    /// <param name="consumerUrl">消费者回调地址</param>
     public MessageIdempotency(Guid messageId, string consumerUrl)
     {
         MessageId = messageId;

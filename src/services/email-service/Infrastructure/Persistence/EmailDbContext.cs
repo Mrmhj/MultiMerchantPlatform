@@ -8,10 +8,13 @@ namespace EmailService.Infrastructure.Persistence;
 /// </summary>
 public sealed class EmailDbContext(DbContextOptions<EmailDbContext> options) : DbContext(options)
 {
+    /// <summary>邮件记录表</summary>
     public DbSet<EmailMessage> Emails => Set<EmailMessage>();
 
+    /// <summary>邮件模板表</summary>
     public DbSet<EmailTemplate> Templates => Set<EmailTemplate>();
 
+    /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

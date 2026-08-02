@@ -1,3 +1,4 @@
+using System.Reflection;
 using MessagingService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -5,6 +6,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+});
 
 // 注册 messaging-service 核心服务（配置 / DbContext / 发布器 / 分发器）
 builder.Services.AddMessagingService(builder.Configuration);
@@ -23,6 +31,8 @@ if (app.Environment.IsDevelopment())
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI();
     app.MapOpenApi();
 }
 

@@ -12,6 +12,10 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class EmailServiceDependencyInjection
 {
+    /// <summary>注册 email-service 全部服务（配置 / 数据库 / SMTP / 发送 / 重试）</summary>
+    /// <param name="services">服务集合</param>
+    /// <param name="configuration">应用配置</param>
+    /// <returns>服务集合（链式调用）</returns>
     public static IServiceCollection AddEmailService(this IServiceCollection services, IConfiguration configuration)
     {
         // 配置

@@ -5,6 +5,7 @@ namespace EmailService.Application.Options;
 /// </summary>
 public sealed class EmailOptions
 {
+    /// <summary>配置节名称（appsettings.json 的 Email 节点）</summary>
     public const string SectionName = "Email";
 
     /// <summary>SMTP 服务器</summary>

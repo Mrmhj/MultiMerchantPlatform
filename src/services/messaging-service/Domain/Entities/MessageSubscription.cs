@@ -10,6 +10,11 @@ public sealed class MessageSubscription : Entity
 {
     private MessageSubscription() { } // EF Core
 
+    /// <summary>创建订阅（默认启用）</summary>
+    /// <param name="eventName">订阅的事件名，支持 * 通配全部事件</param>
+    /// <param name="callbackUrl">回调地址（订阅者接收端点，POST）</param>
+    /// <param name="serviceName">订阅者服务名（便于识别）</param>
+    /// <param name="maxRetryCount">覆盖全局默认的最大重试次数</param>
     public MessageSubscription(
         string eventName,
         string callbackUrl,
@@ -41,7 +46,9 @@ public sealed class MessageSubscription : Entity
     /// <summary>是否启用</summary>
     public bool IsActive { get; private set; }
 
+    /// <summary>启用订阅</summary>
     public void Activate() => IsActive = true;
 
+    /// <summary>停用订阅（暂停投递，不删除）</summary>
     public void Deactivate() => IsActive = false;
 }

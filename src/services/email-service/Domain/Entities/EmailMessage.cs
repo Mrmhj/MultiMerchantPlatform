@@ -10,6 +10,16 @@ public sealed class EmailMessage : Entity
 {
     private EmailMessage() { } // EF Core
 
+    /// <summary>创建待发送邮件（初始状态 Pending）</summary>
+    /// <param name="from">发件人地址</param>
+    /// <param name="to">收件人（多个用 ; 分隔）</param>
+    /// <param name="subject">主题</param>
+    /// <param name="body">正文</param>
+    /// <param name="isHtml">是否 HTML 正文（默认 true）</param>
+    /// <param name="cc">抄送（; 分隔，可选）</param>
+    /// <param name="bcc">密送（; 分隔，可选）</param>
+    /// <param name="templateName">使用的模板名（可选）</param>
+    /// <param name="maxRetryCount">最大重试次数（默认 3）</param>
     public EmailMessage(
         string from,
         string to,
