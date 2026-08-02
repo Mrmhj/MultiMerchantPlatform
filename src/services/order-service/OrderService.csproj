@@ -25,6 +25,7 @@
     <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Data\BuildingBlocks.Data.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Security\BuildingBlocks.Security.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.MultiTenant\BuildingBlocks.MultiTenant.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Communication\BuildingBlocks.Communication.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Logging\BuildingBlocks.Logging.csproj" />
   </ItemGroup>
 

@@ -1,5 +1,20 @@
 # 变更记录
 
+## [v5.3] - 2026-08-02
+
+### Added
+- **订单-库存联动接线（Phase 1 收尾）**：
+  - order-service 接入 stock-service 客户端（IServiceClient + X-Internal-Key 命名客户端）
+  - 下单预占库存（reserve），预占失败释放已占并拒绝下单（400 STOCK_INSUFFICIENT）
+  - 支付确认扣减库存（confirm）、订单取消释放预占（release），失败记录日志不阻塞
+  - **多 SKU 部分失败补偿**：逐项预占，任一失败自动回滚已预占项（分布式一致性）
+
+### Verified
+- 全量编译 0 警告 0 错误（Release，20 个项目）
+- 冒烟全通过：建库存 → 下单自动预占（A rsv2/B rsv1）→ 库存不足拒绝 → 支付扣减（total 98/49）→ 取消释放（rsv0）→ **部分失败补偿（A×3+B×1000 失败后 A 无残留预占）**
+
+---
+
 ## [v5.2] - 2026-08-02
 
 ### Added

@@ -1,4 +1,5 @@
 using BuildingBlocks.Core.CQRS;
+using BuildingBlocks.Communication;
 using BuildingBlocks.MultiTenant;
 using BuildingBlocks.Security;
 using OrderService.Application.Commands;
@@ -15,7 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class OrderServiceDependencyInjection
 {
-    /// <summary>注册 order-service 全部服务（配置 / 数据库 / 当前用户与商户 / CQRS 处理器）</summary>
+    /// <summary>注册 order-service 全部服务（配置 / 数据库 / 当前用户与商户 / 库存客户端 / CQRS 处理器）</summary>
     /// <param name="services">服务集合</param>
     /// <param name="configuration">应用配置</param>
     /// <returns>服务集合（链式调用）</returns>
@@ -31,6 +32,18 @@ public static class OrderServiceDependencyInjection
         services.AddCurrentUser();
         services.AddHttpContextAccessor();
         services.AddScoped<ITenantProvider, HttpMerchantProvider>();
+
+        // 库存服务客户端（命名 HttpClient 携带 X-Internal-Key 默认头）
+        var stockBaseUrl = configuration["Services:StockService:BaseUrl"] ?? "http://localhost:8006";
+        var internalKey = configuration["Internal:Key"] ?? string.Empty;
+        services.AddHttpClient<IServiceClient, HttpServiceClient>("stock", client =>
+        {
+            client.BaseAddress = new Uri(stockBaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(30);
+            if (!string.IsNullOrEmpty(internalKey))
+                client.DefaultRequestHeaders.Add("X-Internal-Key", internalKey);
+        });
+        services.AddScoped<StockServiceClient>();
 
         // 中介者 + CQRS 处理器
         services.AddMediator();
