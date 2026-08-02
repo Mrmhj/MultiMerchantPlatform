@@ -257,7 +257,7 @@ E:\MultiMerchantPlatform\
 | **P1** | logistics-service | 物流对接/追踪 | 8013 |
 | **P1** | settlement-service | 佣金计算/结算分账 | 8014 |
 | **P1** | email-service | 邮件发送/接收 **(v4新增)** | 8015 |
-| **P2** | im-service | 即时通讯 **(v4新增)** | 8016 |
+| **P2** | im-service | 即时通讯 **(v4新增)** ✅ v6.0 | 8016 |
 | **P2** | performance-service | 压测+内存监控 **(v4新增)** | 8017 |
 | **P2** | risk-service | 风控/反刷单 | 8018 |
 | **P2** | notification-service | 通知中心（短信/站内信/Push） | 8019 |
@@ -713,7 +713,7 @@ src/apps/
 | 10 | cart-service + search-service | 购物车 + 搜索 ✅ |
 | 10-11 | promotion-service + review-service | 优惠券 + 评价 ✅ |
 | 11 | logistics-service + settlement-service | 物流 + 结算 ✅ |
-| 12 | **im-service**（即时通讯） | 聊天功能 |
+| 12 | **im-service**（即时通讯） | 聊天功能 ✅ |
 | 12-13 | 商户端 Web 前端（Vue 3） | 商户管理后台 |
 | 13 | **移动端 uni-app** 骨架 + 核心页面 | App 可运行 |
 

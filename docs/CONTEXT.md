@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v5.9 · 2026-08-02 · 提交 df07235 · 工作区已提交干净
+> 版本对应：v6.0 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
 
 ---
 
@@ -31,6 +31,7 @@
 | **review-service** | 8012 | MMP_Review | ✅ v5.8 | 商品评价（买家/商户/公开） |
 | **logistics-service** | 8013 | MMP_Logistics | ✅ v5.9 | 物流（运单/轨迹/公司，订单发货联动） |
 | **settlement-service** | 8014 | MMP_Settlement | ✅ v5.9 | 结算（佣金规则/结算单/幂等生成） |
+| **im-service** | 8016 | MMP_IM | ✅ v6.0 | 即时通讯（SignalR：私聊/客服群/已读/离线补推/内部推送） |
 | messaging-service | 8010 | MMP_Infra | ✅ | 消息总线（Outbox/通配订阅） |
 | logging-service | 8011 | MMP_Infra | ✅ | 日志批量上报/查询/统计 |
 | email-service | 8015 | MMP_Email | ✅ | 邮件（MailKit/DryRun/模板/重试） |
@@ -40,18 +41,18 @@
 
 ## 三、当前进度
 
+- **Phase 2 Week 12 已完成**：im-service（提交见 git log）
 - **Phase 2 Week 11 已完成**：logistics-service + settlement-service（提交 df07235）
 - **Phase 2 Week 10-11 已完成**：review-service（提交 d90447d）
 - **Phase 2 Week 10-11 已完成**：promotion-service（提交 a83aa99）
 - **Phase 2 Week 10 已完成**：cart-service + search-service（提交 c5512d7）
 - **Phase 1 全部完成**（v4.7-v5.4）：identity → merchant → product → order → pay → stock → 库存联动 → C 端 Web 商城
-- 全量编译 **0 警告 0 错误**（26 项目）；最近提交见 git log
+- 全量编译 **0 警告 0 错误**（27 项目）；最近提交见 git log
 
 ## 四、下一步（按 PROJECT_PLAN.md 路线图）
 
 | 周次 | 任务 | 端口/说明 |
 |---|---|---|
-| 12 | im-service | 即时通讯（SignalR，8016） |
 | 12-13 | 商户端 Web 前端（web-merchant） | Vue 3 |
 | 13 | 移动端 uni-app 骨架 | App 可运行 |
 

@@ -21,6 +21,7 @@
     <Project Path="src/services/cart-service/CartService.csproj" />
     <Project Path="src/services/email-service/EmailService.csproj" />
     <Project Path="src/services/identity-service/IdentityService.csproj" />
+    <Project Path="src/services/im-service/ImService.csproj" />
     <Project Path="src/services/logging-service/LoggingService.csproj" />
     <Project Path="src/services/logistics-service/LogisticsService.csproj" />
     <Project Path="src/services/merchant-service/MerchantService.csproj" />

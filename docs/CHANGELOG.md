@@ -1,5 +1,33 @@
 # 变更记录
 
+## [v6.0] - 2026-08-02
+
+### Added
+- **Phase 2 Week 12：im-service（8016 即时通讯）**：
+  - **SignalR 实时通道**：Hub `/hub/chat`（JWT 鉴权，WebSocket 通过 `access_token` query 携带令牌，`IUserIdProvider` 从 JWT sub 解析用户）；强类型客户端接口 `IChatClient`（ReceiveMessage / MessageRead / TypingIndicator）
+  - **会话体系**：私聊（买家 ↔ 商户客服，`GET 或创建` 双向幂等）+ 群聊（商户客服群，成员去重 ≥2 人）；会话状态 Active → Closed；`LastMessageAt/Preview` 列表摘要
+  - **消息**：Text / Image / File / OrderCard / System 五类（Content ≤4000）；游标分页历史（`(CreatedAt, Id)` 字典序，最新在前 + hasMore）；未读数统计（买家视角 / 商户视角 = 非商户员工发来的消息）
+  - **离线消息**：上线（OnConnected）自动加入全部会话组 + 补推该用户**参与会话内**的未读消息（≤50 条，严格按成员过滤防越权）
+  - **已读回执 / 输入中**：`MarkAsRead` 批量置已读 + 群组广播回执；`SendTypingIndicator` 转发（不落库）
+  - **内部推送**：`POST /api/im/internal/push`（X-Internal-Key）——订单/物流状态系统通知：指定会话 → 用户最近活跃会话 → 新建「系统通知」会话三级定位，落库 + 实时推送，返回 delivered（是否在线）
+  - **多租户**：会话/成员/消息按商户隔离（HasQueryFilter + Handler 显式过滤），缺 `X-Merchant-Id` → 400 `MERCHANT_REQUIRED`；成员校验（非成员发送 → 400 `NOT_SESSION_MEMBER`）
+  - **发送者角色权威化**：以会话成员表 Role 为准（Hub 的 JWT 推断仅兜底，未提权客服也能正确落库为 MerchantStaff）
+  - 数据库：MMP_IM 库（3 表）+ 网关 `/api/im/**`、`/hub/chat/**` 路由（8016）
+  - 新增模块文档 `docs/modules/im-service.md`
+
+### Verified
+- 全量编译 0 警告 0 错误（27 个项目，仅环境性 NU1900 缓存警告）
+- REST 冒烟全通过（26 项）：健康 → 鉴权 401（无 token / 错误内部密钥）→ 创建私聊 + 幂等同 ID → 发送消息（买家角色 1）→ 空内容 400 → B 未读数 1 → 历史分页 → 已读回执 → 商户 reply（客服角色 2）→ 商户会话列表 → 缺头 400 → 客服群创建 → 内部推送（未在线 delivered=false）→ 通知并入活跃会话
+- SignalR 冒烟全通过（9 项）：WebSocket 连接（access_token query 鉴权）→ 双向实时收发（senderRole 正确）→ 输入中指示 → 已读回执 → 非成员发送拒绝（HubException）→ 重连补推离线消息
+- 网关链路：`/api/im/**`、`/hub/chat/**` 经 8000 转发正常（401/200/400 均正确透传）
+
+### Notes
+- **越权 Bug 修复**：上线补推初版未按用户参与的会话过滤（把全库未读推给新连接）→ 修复为仅推送本人会话内未读，并重测通过
+- 设计取舍：连接管理（在线判断）为内存单机方案，集群部署需换 Redis（Phase 4）；已读为整会话粒度（单条回执留待后续）
+- 网关无 `/api/auth/**` 路由（identity 注册/登录直连 8001，既有现状，未在本次范围）
+
+---
+
 ## [v5.9] - 2026-08-02
 
 ### Added
