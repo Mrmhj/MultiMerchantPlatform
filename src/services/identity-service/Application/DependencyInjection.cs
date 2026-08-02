@@ -37,10 +37,9 @@ public static class IdentityServiceDependencyInjection
             ?? throw new InvalidOperationException("缺少连接字符串: ConnectionStrings:IdentityDb");
         services.AddDbContext<IdentityDbContext>(o => o.UseSqlServer(connectionString));
 
-        // 时间与当前用户
+        // 时间与当前用户（CurrentUserAccessor 已提升至 BuildingBlocks.Security 公共实现）
         services.TryAddSingleton(TimeProvider.System);
-        services.AddHttpContextAccessor();
-        services.AddScoped<ICurrentUser, CurrentUserAccessor>();
+        services.AddCurrentUser();
 
         // 中介者 + CQRS 处理器（按程序集扫描注册）
         services.AddMediator();

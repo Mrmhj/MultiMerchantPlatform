@@ -22,7 +22,7 @@ public class JwtTokenService(JwtOptions options)
         };
 
         foreach (var role in roles)
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.Add(new Claim("role", role));
 
         if (merchantId.HasValue)
             claims.Add(new Claim("merchant_id", merchantId.Value.ToString()));

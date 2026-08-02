@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text;
 using BuildingBlocks.Security;
-using IdentityService.Infrastructure.Persistence;
+using MerchantService.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,7 +18,7 @@ builder.Services.AddSwaggerGen(options =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
 
-    // Swagger UI 支持 Bearer Token（登录后可在界面直接携带令牌测试）
+    // Swagger UI 支持 Bearer Token
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -34,12 +34,11 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// JWT 认证（Bearer）
+// JWT 认证（Bearer）— 密钥与 identity-service 一致，令牌互认
 var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        // 保留 JWT 原始 claim 名（sub / unique_name / role），禁用默认 inbound 映射
         options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -51,13 +50,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(1),
-            RoleClaimType = "role",
+            RoleClaimType = "role", // MapInboundClaims=false 后角色授权读取 role claim
         };
     });
 builder.Services.AddAuthorization();
 
-// 注册 identity-service 核心服务
-builder.Services.AddIdentityService(builder.Configuration);
+// 注册 merchant-service 核心服务
+builder.Services.AddMerchantService(builder.Configuration);
 
 var app = builder.Build();
 
@@ -66,7 +65,7 @@ if (app.Environment.IsDevelopment())
 {
     using (var scope = app.Services.CreateScope())
     {
-        var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MerchantDbContext>();
         await db.Database.MigrateAsync();
     }
 

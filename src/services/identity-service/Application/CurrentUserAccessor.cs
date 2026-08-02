@@ -1,39 +1,7 @@
-using System.Security.Claims;
-using BuildingBlocks.Security;
 using IdentityService.Domain.Entities;
 using IdentityService.DTOs;
-using Microsoft.AspNetCore.Http;
 
 namespace IdentityService.Application;
-
-/// <summary>
-/// 当前用户访问器 — 从 HttpContext 的 JWT Claims 解析当前登录用户（ICurrentUser 实现）。
-/// </summary>
-public sealed class CurrentUserAccessor(IHttpContextAccessor httpContextAccessor) : ICurrentUser
-{
-    private ClaimsPrincipal? User => httpContextAccessor.HttpContext?.User;
-
-    /// <inheritdoc />
-    public Guid UserId
-        => Guid.TryParse(User?.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub), out var id)
-            ? id
-            : Guid.Empty;
-
-    /// <inheritdoc />
-    public string UserName
-        => User?.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.UniqueName) ?? string.Empty;
-
-    /// <inheritdoc />
-    public Guid? MerchantId
-        => Guid.TryParse(User?.FindFirstValue("merchant_id"), out var m) ? m : null;
-
-    /// <inheritdoc />
-    public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
-
-    /// <inheritdoc />
-    public string[] Roles
-        => User?.FindAll(ClaimTypes.Role).Select(c => c.Value).ToArray() ?? [];
-}
 
 /// <summary>
 /// 实体 → DTO 映射（手写映射，避免反射开销）。

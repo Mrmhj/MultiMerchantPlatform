@@ -22,7 +22,7 @@
 | 模块 | 路径 | 状态 | 优先级 |
 |------|------|------|--------|
 | identity-service | `docs/modules/identity-service.md` | ✅ 已完成 (v4.7) | P0 (Phase 1 Week 4) |
-| merchant-service | `docs/modules/merchant-service.md` | 📝 待编写 | P0 |
+| merchant-service | `docs/modules/merchant-service.md` | ✅ 已完成 (v4.8) | P0 (Phase 1 Week 4-5) |
 | product-service | `docs/modules/product-service.md` | 📝 待编写 | P0 |
 | order-service | `docs/modules/order-service.md` | 📝 待编写 | P0 |
 | pay-service | `docs/modules/pay-service.md` | 📝 待编写 | P0 |

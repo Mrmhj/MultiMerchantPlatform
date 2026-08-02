@@ -1,5 +1,30 @@
 # 变更记录
 
+## [v4.8] - 2026-08-02
+
+### Added
+- **Phase 1 Week 4-5：开发完成 merchant-service（商户入驻审核微服务，端口 8002）**：
+  - 入驻申请（商户名唯一 + 一个用户仅一条未终态申请）+ 我的商户 / 详情 / 分页列表
+  - 审核流程（admin 角色）：批准 / 驳回（驳回必填原因），状态机 Pending→Approved/Rejected→Disabled
+  - 数据库：MMP_Merchant 库 Merchants 表（Name 唯一索引 + 多组合索引）
+  - 网关路由：`/api/merchant/**` → 8002（YARP 预置路由生效）
+  - 延续 identity-service 规范：Mediator + CQRS + 充血实体 + 全 API 注解 + Swagger Bearer
+- **BuildingBlocks.Security 增强**：
+  - `CurrentUserAccessor` 提升为公共实现（+AddCurrentUser 扩展），identity/merchant 共用（消除重复代码）
+  - **修复 JWT role claim**：签发改用标准短名 `role`（原 ClaimTypes 长 URI 导致 [Authorize(Roles)] 失效），配合 MapInboundClaims=false + RoleClaimType="role"
+  - 改用 FrameworkReference Microsoft.AspNetCore.App（Http.Abstractions 已并入共享框架）
+- identity-service：移除本地 CurrentUserAccessor（改用公共实现），JwtBearer 补 RoleClaimType
+- 新增模块文档 `docs/modules/merchant-service.md`
+
+### Verified
+- 全量编译 0 警告 0 错误（Release，16 个项目）
+- 冒烟测试 12 项全通过：申请 → 我的商户 → 重复申请409 → 名称占用409 → 非admin 403 → admin 列表/详情 → 审核通过(Approved) → 重复审核400 → 驳回缺原因400 → 驳回(Rejected+原因) → Swagger
+
+### Notes
+- 踩坑记录：JwtTokenService 用 ClaimTypes.Role 长 URI 签发导致角色授权失效，改短名 role 解决；Http.Abstractions 3.0+ 并入共享框架需用 FrameworkReference
+
+---
+
 ## [v4.7] - 2026-08-02
 
 ### Added
