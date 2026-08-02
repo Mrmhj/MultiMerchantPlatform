@@ -77,6 +77,11 @@
 | 16 | ~~BI 分析管理平台（web-admin + ECharts）~~ | 8020 + 5177 ✅ |
 | 17-19 | **Phase 4：高并发优化 + 压测**（缓存/连接池/索引优化/全链路压测） | 见 PROJECT_PLAN |
 
+> **Phase 4 前置（2026-08-02 已落地）**：
+> - **Redis 已部署**：tporadowski 5.0.14.1 Windows 版 `E:\redis-5.0.14\`，Windows 服务 `redis`（自启），0.0.0.0+[::]:6379（防火墙已放行），密码 `MMP-Redis-PUctKhVRIFB48kmfI6Ek`；局域网 192.168.1.4 / 公网 IPv6 2409:8a62:...（动态）/ **公网 IPv4 36.170.45.77 为移动 CGNAT 不可直连（需内网穿透）**；详见 `docs/guides/redis-setup.md`
+> - **涉密信息规范（红线）**：本地 `appsettings.json`/`.env*` 一律不入库，仅提交 `appsettings.Example.json` 模板（占位符 `__DB_PASSWORD__`/`__JWT_SECRET__`/`__INTERNAL_KEY__`）；JWT SecretKey 与 Internal Key 已轮换新值（旧值曾入 GitHub 历史）；见 coding-standards.md 第十一节
+> - BuildingBlocks.Cache 已入库 Redis 实现（ICacheService/RedisDistributedLock + StackExchange.Redis 2.8.16），连接串格式 `host:port,password=xxx`
+
 ## 五、工作流程约定（强制）
 
 1. **阶段交付**：阶段完成 → 编译 0 警告 0 错误 + 冒烟测试 → 提交 Git（commit+push）→ 再进下一阶段
@@ -104,6 +109,9 @@
 - **SignalR 推送语义**：`IHubContext.Clients.User(id)` 无在线连接时静默丢弃，REST 落库为最终一致，实时通道仅加速感知
 - **PagedResult 序列化为 `totalCount/page/pageSize`**（camelCase）：冒烟断言勿用 `total`
 - **Aspire AppHost 新增服务**：需同时更新 slnx + AppHost.csproj ProjectReference（否则 `Projects.X` 命名空间缺失报 CS0234）
+- **GitHub release 下载**：直连极慢 → 查 Gitee 镜像仓库 release 附件；curl 报 23 write error = 后台残留 curl 占用同一目标文件 → Stop-Process 清理；PowerShell Invoke-WebRequest 更稳
+- **tporadowski redis-server**：服务注册不支持 `--service-port`；Start-Process 起的进程随会话退出，长驻必须注册 Windows 服务
+- **涉密治理**：本地配置模板化（appsettings.Example.json），提交前 `git diff --cached` 扫描敏感值
 
 ## 七、关键文档索引
 
@@ -113,5 +121,6 @@
 | 编码规范 | `docs/architecture/coding-standards.md`（v1.0） |
 | 变更记录 | `docs/CHANGELOG.md`（当前 v7.0） |
 | 文档索引 | `docs/DOC_INDEX.md` |
+| Redis 指南 | `docs/guides/redis-setup.md` |
 | Token 分析 | `docs/reports/token-usage-analysis.md` |
 | 模块文档 | `docs/modules/<service>.md` × 16 |
