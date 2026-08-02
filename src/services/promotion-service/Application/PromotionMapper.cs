@@ -78,4 +78,54 @@ public static class PromotionMapper
             CreatedAt = activity.CreatedAt,
         };
     }
+
+    /// <summary>秒杀活动实体转响应 DTO（自动推导 Ended 终态）</summary>
+    /// <param name="activity">秒杀活动</param>
+    /// <param name="now">当前时间（UTC）</param>
+    /// <returns>秒杀活动响应</returns>
+    public static SeckillResponse ToSeckillResponse(SeckillActivity activity, DateTime now)
+    {
+        activity.EndIfExpired(now);
+        return new SeckillResponse
+        {
+            Id = activity.Id,
+            MerchantId = activity.MerchantId,
+            Name = activity.Name,
+            MerchantName = activity.MerchantName,
+            ProductId = activity.ProductId,
+            ProductName = activity.ProductName,
+            SkuId = activity.SkuId,
+            SkuCode = activity.SkuCode,
+            Spec = activity.Spec,
+            SeckillPrice = activity.SeckillPrice,
+            TotalStock = activity.TotalStock,
+            LimitPerUser = activity.LimitPerUser,
+            StartTime = activity.StartTime,
+            EndTime = activity.EndTime,
+            Status = activity.Status,
+            CreatedAt = activity.CreatedAt,
+        };
+    }
+
+    /// <summary>秒杀记录实体转响应 DTO</summary>
+    /// <param name="record">秒杀记录</param>
+    /// <returns>秒杀记录响应</returns>
+    public static SeckillRecordResponse ToSeckillRecordResponse(SeckillRecord record) => new()
+    {
+        Id = record.Id,
+        ActivityId = record.ActivityId,
+        MerchantId = record.MerchantId,
+        MerchantName = record.MerchantName,
+        UserId = record.UserId,
+        ProductName = record.ProductName,
+        SkuCode = record.SkuCode,
+        Spec = record.Spec,
+        UnitPrice = record.UnitPrice,
+        Quantity = record.Quantity,
+        ExpireAt = record.ExpireAt,
+        OrderId = record.OrderId,
+        OrderNo = record.OrderNo,
+        Status = record.Status,
+        CreatedAt = record.CreatedAt,
+    };
 }

@@ -13,11 +13,19 @@ public sealed class HttpMessagePublisher(
     IOptions<MessageBusOptions> options) : IMessagePublisher
 {
     private readonly MessageBusOptions _options = options.Value;
+    private int _configured;
 
     /// <inheritdoc />
     public async Task PublishAsync<T>(T message, string? routingKey = null, CancellationToken ct = default)
         where T : IIntegrationEvent
     {
+        // 共享 HttpClient 只允许在首次请求前配置一次（单例下重复设置会抛 InvalidOperationException）
+        if (Interlocked.Exchange(ref _configured, 1) == 0)
+        {
+            httpClient.BaseAddress ??= new Uri(_options.BaseUrl);
+            httpClient.Timeout = TimeSpan.FromSeconds(_options.TimeoutSeconds);
+        }
+
         var envelope = MessageEnvelope.Create(message, routingKey);
 
         var request = new PublishRequest
@@ -26,9 +34,6 @@ public sealed class HttpMessagePublisher(
             Payload = envelope.Payload,
             RoutingKey = envelope.RoutingKey,
         };
-
-        httpClient.BaseAddress ??= new Uri(_options.BaseUrl);
-        httpClient.Timeout = TimeSpan.FromSeconds(_options.TimeoutSeconds);
 
         using var response = await httpClient.PostAsJsonAsync("/api/messages", request, ct);
         response.EnsureSuccessStatusCode();

@@ -25,6 +25,12 @@ public sealed class PromotionDbContext(
     /// <summary>满减活动表</summary>
     public DbSet<PromotionActivity> Activities => Set<PromotionActivity>();
 
+    /// <summary>秒杀活动表</summary>
+    public DbSet<SeckillActivity> SeckillActivities => Set<SeckillActivity>();
+
+    /// <summary>秒杀记录表（买家维度，UserCoupon 同规则不受商户过滤器约束）</summary>
+    public DbSet<SeckillRecord> SeckillRecords => Set<SeckillRecord>();
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -67,6 +73,39 @@ public sealed class PromotionDbContext(
 
             // 多租户隔离
             e.HasQueryFilter(a => _tenantProvider.CurrentMerchantId == null || a.MerchantId == _tenantProvider.CurrentMerchantId);
+        });
+
+        modelBuilder.Entity<SeckillActivity>(e =>
+        {
+            e.ToTable("SeckillActivities");
+            e.Property(x => x.Name).HasMaxLength(100).IsRequired();
+            e.Property(x => x.MerchantName).HasMaxLength(100).IsRequired();
+            e.Property(x => x.ProductName).HasMaxLength(200).IsRequired();
+            e.Property(x => x.SkuCode).HasMaxLength(50).IsRequired();
+            e.Property(x => x.Spec).HasMaxLength(100);
+            e.Property(x => x.SeckillPrice).HasPrecision(18, 2);
+            e.HasIndex(x => new { x.MerchantId, x.Status });
+            e.HasIndex(x => new { x.MerchantId, x.StartTime });
+
+            // 多租户隔离
+            e.HasQueryFilter(a => _tenantProvider.CurrentMerchantId == null || a.MerchantId == _tenantProvider.CurrentMerchantId);
+        });
+
+        modelBuilder.Entity<SeckillRecord>(e =>
+        {
+            e.ToTable("SeckillRecords");
+            e.Property(x => x.MerchantName).HasMaxLength(100).IsRequired();
+            e.Property(x => x.ProductName).HasMaxLength(200).IsRequired();
+            e.Property(x => x.SkuCode).HasMaxLength(50).IsRequired();
+            e.Property(x => x.Spec).HasMaxLength(100);
+            e.Property(x => x.UnitPrice).HasPrecision(18, 2);
+            e.Property(x => x.OrderNo).HasMaxLength(50);
+            e.HasIndex(x => new { x.UserId, x.Status });
+            e.HasIndex(x => new { x.ActivityId, x.UserId });
+            e.HasIndex(x => x.MerchantId);
+            e.HasIndex(x => x.OrderId);
+            e.Property(x => x.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            e.Property(x => x.UpdatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
         });
     }
 }

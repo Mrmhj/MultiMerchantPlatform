@@ -17,6 +17,9 @@ public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : D
     /// <summary>订单商品项表</summary>
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
+    /// <summary>秒杀订单处理幂等记录表</summary>
+    public DbSet<SeckillOrderProcessed> SeckillOrderProcesseds => Set<SeckillOrderProcessed>();
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -49,6 +52,15 @@ public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : D
             e.Property(x => x.Spec).HasMaxLength(100).IsRequired();
             e.Property(x => x.UnitPrice).HasPrecision(18, 2);
             e.HasIndex(x => x.SubOrderId);
+        });
+
+        modelBuilder.Entity<SeckillOrderProcessed>(e =>
+        {
+            e.ToTable("SeckillOrderProcesseds");
+            e.Property(x => x.OrderNo).HasMaxLength(32).IsRequired();
+            e.HasIndex(x => x.SeckillRecordId).IsUnique();
+            e.HasIndex(x => x.OrderId);
+            e.Property(x => x.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
         });
     }
 }

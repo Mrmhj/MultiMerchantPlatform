@@ -5,10 +5,12 @@ namespace OrderService.Infrastructure;
 
 /// <summary>
 /// 库存服务客户端 — 订单-库存联动（下单预占 / 支付扣减 / 取消释放）。
-/// X-Internal-Key 默认头在 DI 注册的命名 HttpClient 中配置。
+/// X-Internal-Key 默认头在 DI 注册的命名 HttpClient "stock" 中配置；
+/// 注入 IHttpClientFactory 按名取（避免多个命名 HttpClient 注册同一 IServiceClient 互相覆盖）。
 /// </summary>
-public sealed class StockServiceClient(IServiceClient serviceClient)
+public sealed class StockServiceClient(IHttpClientFactory factory)
 {
+    private readonly IServiceClient _client = new HttpServiceClient(factory.CreateClient("stock"));
     /// <summary>预占库存（下单时调用，库存不足返回失败）</summary>
     /// <param name="skuId">SKU ID</param>
     /// <param name="quantity">数量</param>
@@ -16,7 +18,7 @@ public sealed class StockServiceClient(IServiceClient serviceClient)
     /// <param name="ct">取消令牌</param>
     /// <returns>操作结果（IsSuccess=false 表示库存不足等失败）</returns>
     public async Task<Result<StockOpResponse>> ReserveAsync(Guid skuId, int quantity, string referenceId, CancellationToken ct = default)
-        => await serviceClient.PostAsync<StockOpResponse>(
+        => await _client.PostAsync<StockOpResponse>(
             "/api/stocks/internal/reserve",
             new { skuId, quantity, referenceId }, ct);
 
@@ -27,7 +29,7 @@ public sealed class StockServiceClient(IServiceClient serviceClient)
     /// <param name="ct">取消令牌</param>
     /// <returns>操作结果</returns>
     public async Task<Result<StockOpResponse>> ConfirmAsync(Guid skuId, int quantity, string referenceId, CancellationToken ct = default)
-        => await serviceClient.PostAsync<StockOpResponse>(
+        => await _client.PostAsync<StockOpResponse>(
             "/api/stocks/internal/confirm",
             new { skuId, quantity, referenceId }, ct);
 
@@ -38,7 +40,7 @@ public sealed class StockServiceClient(IServiceClient serviceClient)
     /// <param name="ct">取消令牌</param>
     /// <returns>操作结果</returns>
     public async Task<Result<StockOpResponse>> ReleaseAsync(Guid skuId, int quantity, string referenceId, CancellationToken ct = default)
-        => await serviceClient.PostAsync<StockOpResponse>(
+        => await _client.PostAsync<StockOpResponse>(
             "/api/stocks/internal/release",
             new { skuId, quantity, referenceId }, ct);
 }

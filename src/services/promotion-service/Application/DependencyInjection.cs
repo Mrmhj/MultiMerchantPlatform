@@ -1,4 +1,6 @@
+using BuildingBlocks.Cache;
 using BuildingBlocks.Core.CQRS;
+using BuildingBlocks.Messaging;
 using BuildingBlocks.MultiTenant;
 using BuildingBlocks.Security;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +9,6 @@ using PromotionService.Application.Commands;
 using PromotionService.Application.Queries;
 using PromotionService.Infrastructure;
 using PromotionService.Infrastructure.Persistence;
-
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
@@ -15,7 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class PromotionServiceDependencyInjection
 {
-    /// <summary>注册 promotion-service 全部服务（配置 / 数据库 / 多租户 / CQRS 处理器）</summary>
+    /// <summary>注册 promotion-service 全部服务（配置 / 数据库 / 多租户 / CQRS 处理器 / Redis 缓存 / 消息发布）</summary>
     /// <param name="services">服务集合</param>
     /// <param name="configuration">应用配置</param>
     /// <returns>服务集合（链式调用）</returns>
@@ -31,6 +32,18 @@ public static class PromotionServiceDependencyInjection
         services.AddCurrentUser();
         services.AddHttpContextAccessor();
         services.AddScoped<ITenantProvider, HttpMerchantProvider>();
+
+        // 缓存（秒杀防超卖：Redis 原子预扣 + 分布式锁；Redis 不可用降级 In-Memory）
+        var useRedis = configuration.GetValue<bool>("Cache:UseRedis");
+        var redisConnection = configuration.GetValue<string>("Cache:RedisConnection");
+        services.AddCacheService(useRedis, redisConnection);
+
+        // 消息总线（秒杀抢购成功 → 发布异步下单事件，order-service 消费）
+        services.AddHttpMessageBus();
+
+        // 秒杀超时回收后台任务（双注册：Singleton + HostedService）
+        services.AddSingleton<SeckillExpiryScanner>();
+        services.AddHostedService(sp => sp.GetRequiredService<SeckillExpiryScanner>());
 
         // 中介者 + CQRS 处理器
         services.AddMediator();

@@ -1,5 +1,4 @@
 using BuildingBlocks.Core.CQRS;
-using BuildingBlocks.Communication;
 using BuildingBlocks.MultiTenant;
 using BuildingBlocks.Security;
 using OrderService.Application.Commands;
@@ -33,10 +32,10 @@ public static class OrderServiceDependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<ITenantProvider, HttpMerchantProvider>();
 
-        // 库存服务客户端（命名 HttpClient 携带 X-Internal-Key 默认头）
+        // 库存服务客户端（命名 HttpClient 携带 X-Internal-Key 默认头，IHttpClientFactory 按名取）
         var stockBaseUrl = configuration["Services:StockService:BaseUrl"] ?? "http://localhost:8006";
         var internalKey = configuration["Internal:Key"] ?? string.Empty;
-        services.AddHttpClient<IServiceClient, HttpServiceClient>("stock", client =>
+        services.AddHttpClient("stock", client =>
         {
             client.BaseAddress = new Uri(stockBaseUrl);
             client.Timeout = TimeSpan.FromSeconds(30);
@@ -55,6 +54,17 @@ public static class OrderServiceDependencyInjection
                 client.DefaultRequestHeaders.Add("X-Internal-Key", internalKey);
         });
         services.AddScoped<LogisticsServiceClient>();
+
+        // 促销服务客户端（命名 HttpClient 携带 X-Internal-Key 默认头，秒杀记录标记订单回调）
+        var promotionBaseUrl = configuration["Services:PromotionService:BaseUrl"] ?? "http://localhost:8009";
+        services.AddHttpClient("promotion", client =>
+        {
+            client.BaseAddress = new Uri(promotionBaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(10);
+            if (!string.IsNullOrEmpty(internalKey))
+                client.DefaultRequestHeaders.Add("X-Internal-Key", internalKey);
+        });
+        services.AddScoped<PromotionSeckillClient>();
 
         // 中介者 + CQRS 处理器
         services.AddMediator();

@@ -1,5 +1,26 @@
 # 变更记录
 
+## [v7.2] - 2026-08-02
+
+### Added
+- **Phase 4 Week 17：秒杀场景实现（缓存预扣 + 异步下单）**：
+  - **Redis 基础设施就绪**：tporadowski/redis 5.0.14 绿色版安装于 `E:\redis-5.0.14`，注册 Windows 服务 `redis`（AUTO_START 开机自启），端口 6379，密码 `MMP-Redis-PUctKhVRIFB48kmfI6Ek`
+  - **BuildingBlocks.Cache 增强**：新增 `RedisCacheService`（StackExchange.Redis）+ `RedisDistributedLock`（SETNX + TTL + Lua 释放防误删）；`ICacheService` 扩展原子计数（Increment/Decrement）与 `TryDeductAsync`（Lua 单命令「检查+扣减」防超卖）；`AddCacheService(useRedis, connectionString)` 开关，Redis 不可用自动降级 In-Memory
+  - **promotion-service 秒杀模块**：`SeckillActivity`（秒杀价/库存/限购/时间窗/状态机）+ `SeckillRecord`（抢购记录，Pending→Ordered/Expired）；商户端创建/列表/详情/启停（启用时 Redis 预热库存）；C 端抢购（分布式锁 + 原子预扣 + 限购校验 + 落记录 + 发布异步下单消息）、我的秒杀记录；内部接口标记订单回填；`SeckillExpiryScanner` 后台任务超时回滚库存（30s 周期）
+  - **order-service 异步秒杀下单**：新增 `SeckillOrderProcessed` 幂等表（秒杀记录唯一，防消息重投重复下单）、`CreateSeckillOrderCommand`（内部下单：预占库存 + 秒杀价建单 + 回调 promotion 标记 Ordered）、`POST /api/orders/events` 消息消费端点
+  - **消息发布器修复**：`HttpMessagePublisher` 单例下 BaseAddress/Timeout 改为首次请求前只配置一次（原每次设置抛 InvalidOperationException，导致并发发布失败）
+  - **order-service 客户端修复**：`StockServiceClient`/`PromotionSeckillClient` 从注入 `IServiceClient` 改为 `IHttpClientFactory` 按名取（多个命名 HttpClient 注册同一类型互相覆盖，秒杀预占曾打到 promotion 端口）
+  - 冒烟脚本 `tests/smoke-seckill.sh`（13 项断言全过：并发 15 抢 10 恰成功、Redis 库存归零、异步订单落库、秒杀记录 Ordered 回填、重复抢购拒绝、网关转发）
+
+### Changed
+- `docs/modules/promotion-service.md` 新增秒杀章节（实体/流程/API/联调记录）
+- 全量编译 0 错误（NU1900 为沙箱 NuGet 缓存环境警告，非代码警告）
+
+### Notes
+- 待办（Phase 4 Week 17 后续）：① 网关入口 RateLimiter（`Microsoft.AspNetCore.RateLimiting`）；② IServiceClient 接 Polly v8（重试/熔断/超时）；③ 一键启动脚本 `scripts/start-all.ps1` + 部署文档 `docs/guides/local-deployment.md`；④ Aspire AppHost 服务注册补全
+- 秒杀超时回滚当前为后台扫描（30s 粒度）；消息总线延迟投递（ScheduledAt）为可选项
+
+---
 ## [v7.1] - 2026-08-02
 
 ### Changed
