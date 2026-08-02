@@ -45,19 +45,21 @@
 | Git | ✅ 已就绪 | 2.54.0 | — |
 | SQL Server | ✅ 已就绪 | SQL Server 2025 (17.0.1000.7) | 本地实例，sa/123456，库名 `MMP_*` |
 | NuGet 源 | ✅ 已就绪 | nuget.org + VS Offline | — |
-| Redis | ⚠️ 需安装 | 未检测到 | **不使用 Docker**，改为 Memurai（Redis Windows 兼容版）或 In-Memory |
+| Redis | ⚠️ 方案待定 | 未检测到 | **不使用 Docker / 不装 Memurai**，秒杀/缓存前置用「分布式锁等技术 + Redis 实现」 |
 | Docker | ❌ 不再需要 | v4 移除依赖 | 全部本地化运行 |
 | E 盘空间 | ✅ 345GB 可用 | 358G 总容量 | 项目根目录 `E:\MultiMerchantPlatform\` |
 
-### Redis 替代方案（无 Docker）
+### Redis 替代方案（无 Docker · 2026-08-02 决策：不装 Memurai）
 
 | 方案 | 说明 | 适用场景 |
 |------|------|---------|
-| **Memurai** | Redis 的 Windows 原生兼容版，免费开发版 | ⭐ 推荐，生产级兼容 |
-| **In-Memory Cache** | .NET `IMemoryCache` + `IDistributedCache` | 开发阶段，单机足够 |
+| **开源 Redis for Windows（绿色版）** | `tporadowski/redis`（Redis 5.0.14 官方代码 Windows 移植，MIT 协议，**解压即用无需安装**） | ⭐ 候选：提供真实 Redis 服务 + 分布式锁（SETNX/RedLock） |
+| **.NET 分布式锁 + 缓存抽象** | `DistributedLock`（可基于 SQL Server 表锁实现，无外部服务）+ `BuildingBlocks.Cache` In-Memory 实现 | ⭐ 候选：零外部依赖，纯代码实现秒杀预扣原子性 |
+| **Memurai** | Redis 的 Windows 原生兼容版（**已排除**，2026-08-02 决策不安装） | — |
+| **In-Memory Cache** | .NET `IMemoryCache` + `IDistributedCache` | 开发阶段，单机足够（现状） |
 | **NCache** | .NET 原生分布式缓存 | 需要企业级分布式缓存时 |
 
-> **决策**：开发阶段使用 In-Memory Cache，需要分布式缓存时安装 Memurai。
+> **决策（2026-08-02）**：不安装 Memurai。秒杀/缓存前置用「分布式锁等技术 + Redis 实现」—— 分布式锁保证库存预扣原子性（防超卖），缓存经 `BuildingBlocks.Cache` 抽象承载。**Redis 服务载体待定**：方案 A 用开源 Windows 绿色版 Redis（真实 Redis 服务，需下载解压）；方案 B 用 .NET 分布式锁（基于 SQL Server，零外部依赖）。两案均不引入 Memurai。
 
 ---
 
