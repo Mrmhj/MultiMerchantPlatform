@@ -1,5 +1,29 @@
 # 变更记录
 
+## [v5.7] - 2026-08-02
+
+### Added
+- **Phase 2 Week 10-11：promotion-service（8009 促销/优惠券/满减活动）**：
+  - **优惠券**：商户创建（满减券：满 X 减 Y、限量 0=不限、限领 1-99、有效期窗口）+ 列表/详情/启停
+  - **买家领券**：可领券列表（公开，启用+有效期内+未领完）+ 领券（三重校验：启用/有效期/总量 + 每人限领）+ 我的券（unused/used/expired 过滤，过期按有效期推导）
+  - **满减活动**：商户创建/列表/详情/启停（Draft ⇄ Active → Ended，Ended 时间窗口惰性收尾）+ C 端进行中活动查询（公开）
+  - **内部核销接口**：`POST /internal/coupons/use`（X-Internal-Key），核销幂等（重复回调 Success），返回优惠金额，供 order-service 后续接线
+  - 用户券为**快照模式**（领取时复制券名/规则/有效期，模板改动不影响已领券）
+  - 数据库：MMP_Promotion 库（Coupons / UserCoupons / PromotionActivities）+ 网关 `/api/promotion/**` 直通路由（8009）
+  - 多租户三重防护（商户维度）+ 买家 UserId 隔离 + 跨商户实测隔离
+- 新增模块文档 `docs/modules/promotion-service.md`
+- 新增冒烟脚本 `tests/smoke-promotion.sh`（19 项断言，可重复执行）
+
+### Verified
+- 全量编译 0 警告 0 错误（23 个项目，仅环境性 NU1900 缓存警告）
+- 冒烟 19/19 全通过：健康 → 建券 → 缺商户头 400 → 列表 → 可领（公开）→ 领券 → 限领 400 → 我的券 → 内部核销（错误密钥 401/正确成功减20/重复幂等）→ 建活动 → 启用 → 进行中（公开）→ 停用 → 进行中为空 → 网关转发 → 跨商户隔离
+
+### Notes
+- 订单联动（下单选券/支付核销）未接线：内部接口已就绪，后续阶段统一接入（仿库存 reserve/confirm 模式）
+- 踩坑记录：`MultiTenantEntity.MerchantId` required 需 `[SetsRequiredMembers]`（v4.9 已记，本次复用）；`dotnet xxx.dll` 从项目根启动读不到 appsettings.json → 必须 cd 输出目录
+
+---
+
 ## [v5.6] - 2026-08-02
 
 ### Added

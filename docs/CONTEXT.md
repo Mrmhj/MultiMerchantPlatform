@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v5.6 · 2026-08-02 15:00 · 工作区已提交干净
+> 版本对应：v5.7 · 2026-08-02
 
 ---
 
@@ -27,7 +27,7 @@
 | stock-service | 8006 | MMP_Stock | ✅ | 库存预占/扣减/释放 + 内部接口 |
 | **cart-service** | 8007 | MMP_Cart | ✅ v5.5 | 购物车（买家隔离/同 SKU 合并） |
 | **search-service** | 8008 | MMP_Search | ✅ v5.5 | 商品搜索索引（在售/关键词/价格） |
-| promotion-service | 8009 | MMP_Promotion | ⏳ **下一个** | 优惠券/满减/活动 |
+| **promotion-service** | 8009 | MMP_Promotion | ✅ v5.7 | 优惠券/满减活动/内部核销 |
 | messaging-service | 8010 | MMP_Infra | ✅ | 消息总线（Outbox/通配订阅） |
 | logging-service | 8011 | MMP_Infra | ✅ | 日志批量上报/查询/统计 |
 | email-service | 8015 | MMP_Email | ✅ | 邮件（MailKit/DryRun/模板/重试） |
@@ -37,16 +37,16 @@
 
 ## 三、当前进度
 
+- **Phase 2 Week 10-11 已完成**：promotion-service（提交见 git log）
 - **Phase 2 Week 10 已完成**：cart-service + search-service（提交 c5512d7）
 - **Phase 1 全部完成**（v4.7-v5.4）：identity → merchant → product → order → pay → stock → 库存联动 → C 端 Web 商城
-- 全量编译 **0 警告 0 错误**（22 项目）；最近提交 `225deab`（v5.6 规范）
+- 全量编译 **0 警告 0 错误**（23 项目）；最近提交见 git log
 
 ## 四、下一步（按 PROJECT_PLAN.md 路线图）
 
 | 周次 | 任务 | 端口/说明 |
 |---|---|---|
-| **10-11** | **promotion-service** | 8009，优惠券/满减/活动 |
-| 10-11 | review-service | 评价 |
+| **10-11** | **review-service** | 8012，评价 |
 | 11 | logistics-service + settlement-service | 物流 + 结算 |
 | 12 | im-service | 即时通讯 |
 | 12-13 | 商户端 Web 前端（web-merchant） | Vue 3 |
@@ -67,6 +67,7 @@
 - JWT role 用长 URI 名致角色授权失效 → 签发短名 "role" + `MapInboundClaims=false`
 - Swashbuckle 需 10.1.7+；Microsoft.OpenApi 2.0 类型在 `Microsoft.OpenApi` 命名空间（非 Models）
 - 服务 Release 直跑端口用 `ASPNETCORE_URLS` 显式指定
+- **服务直跑必须 cd 到 bin/Release/net10.0 目录**：`dotnet xxx.dll` 从项目根启动读不到 appsettings.json（content root 为当前目录），报「缺少 Jwt 配置节」
 - EF 关系修复致 `TryComplete` 误判 → 必须 Include 全部子单再判断
 - 测试/演示后停服务进程（PowerShell `Get-NetTCPConnection -LocalPort` 批量停）
 
