@@ -17,7 +17,6 @@ public sealed record SubmitRiskEventsCommand(IReadOnlyList<SubmitRiskEventReques
 
 /// <summary>批量上报风控事件命令处理器</summary>
 public sealed class SubmitRiskEventsCommandHandler(
-    RiskDbContext db,
     RiskRuleEngine engine,
     ILogger<SubmitRiskEventsCommandHandler> logger) : ICommandHandler<SubmitRiskEventsCommand, SubmitRiskEventResponse>
 {

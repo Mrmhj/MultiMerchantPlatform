@@ -88,4 +88,96 @@ public sealed class InternalOrdersController(
 
         return Ok(items);
     }
+
+    /// <summary>内部 BI 统计（bi-admin 服务聚合数据源，X-Internal-Key 校验）</summary>
+    /// <param name="start">周期开始（UTC，可选，默认近 30 天）</param>
+    /// <param name="end">周期结束（UTC，可选）</param>
+    /// <param name="key">内部密钥（请求头 X-Internal-Key）</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>200 — BI 订单统计；401 — 内部密钥无效</returns>
+    /// <response code="200">BI 订单统计（总览/按天销售/商户排行/商品排行/状态分布）</response>
+    /// <response code="401">内部密钥无效</response>
+    [HttpGet("internal/bi-stats")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<BiOrderStatsResponse>> BiStats(
+        [FromQuery] DateTime? start, [FromQuery] DateTime? end,
+        [FromHeader(Name = "X-Internal-Key")] string key,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrEmpty(_internalKey) || key != _internalKey)
+            return Unauthorized(new { error = "内部密钥无效" });
+
+        // 销售口径：已付款（含已发货/已完成）计入 GMV
+        var effectiveStatuses = new[]
+        {
+            SubOrderStatus.Paid, SubOrderStatus.Shipped, SubOrderStatus.Completed,
+        };
+        var from = start ?? DateTime.UtcNow.AddDays(-29).Date;
+        var to = end ?? DateTime.UtcNow.Date.AddDays(1);
+
+        // 1. 总览
+        var totalGmv = await db.SubOrders.AsNoTracking()
+            .Where(s => effectiveStatuses.Contains(s.Status))
+            .SumAsync(s => (decimal?)s.TotalAmount, ct) ?? 0m;
+        var totalOrderCount = await db.Orders.AsNoTracking().CountAsync(ct);
+        var paidOrderCount = await db.Orders.AsNoTracking()
+            .CountAsync(o => o.Status == OrderStatus.Paid || o.Status == OrderStatus.Completed, ct);
+        var completedOrderCount = await db.Orders.AsNoTracking()
+            .CountAsync(o => o.Status == OrderStatus.Completed, ct);
+
+        // 2. 按天销售（子订单创建日分组）
+        var daily = await db.SubOrders.AsNoTracking()
+            .Where(s => effectiveStatuses.Contains(s.Status) && s.CreatedAt >= from && s.CreatedAt < to)
+            .GroupBy(s => s.CreatedAt.Date)
+            .Select(g => new { Date = g.Key, Gmv = g.Sum(s => s.TotalAmount), Count = g.Count() })
+            .OrderBy(x => x.Date)
+            .ToListAsync(ct);
+
+        // 3. 商户销售排行（按子订单商户维度聚合）
+        var merchantRank = await db.SubOrders.AsNoTracking()
+            .Where(s => effectiveStatuses.Contains(s.Status))
+            .GroupBy(s => new { s.MerchantId, s.MerchantName })
+            .Select(g => new
+            {
+                g.Key.MerchantId,
+                g.Key.MerchantName,
+                Gmv = g.Sum(s => s.TotalAmount),
+                Count = g.Count(),
+            })
+            .OrderByDescending(x => x.Gmv)
+            .Take(10)
+            .ToListAsync(ct);
+
+        // 4. 商品销售排行（订单项按商品维度聚合；子查询过滤有效状态子单，避免 join+group 翻译问题）
+        var productRank = await db.OrderItems.AsNoTracking()
+            .Where(i => db.SubOrders.Any(s => s.Id == i.SubOrderId && effectiveStatuses.Contains(s.Status)))
+            .GroupBy(i => new { i.ProductId, i.ProductName })
+            .Select(g => new
+            {
+                g.Key.ProductId,
+                g.Key.ProductName,
+                Quantity = g.Sum(i => i.Quantity),
+                Amount = g.Sum(i => i.UnitPrice * i.Quantity),
+            })
+            .OrderByDescending(x => x.Amount)
+            .Take(10)
+            .ToListAsync(ct);
+
+        // 5. 主订单状态分布
+        var orderStatus = await db.Orders.AsNoTracking()
+            .GroupBy(o => o.Status)
+            .Select(g => new { Status = (int)g.Key, Count = g.Count() })
+            .ToListAsync(ct);
+
+        return Ok(new BiOrderStatsResponse(
+            totalGmv,
+            totalOrderCount,
+            paidOrderCount,
+            completedOrderCount,
+            daily.Select(x => new BiDailySalesPoint(x.Date.ToString("yyyy-MM-dd"), x.Gmv, x.Count)).ToList(),
+            merchantRank.Select(x => new BiMerchantRankItem(x.MerchantId, x.MerchantName, x.Gmv, x.Count)).ToList(),
+            productRank.Select(x => new BiProductRankItem(x.ProductId, x.ProductName, x.Quantity, x.Amount)).ToList(),
+            orderStatus.Select(x => new BiOrderStatusItem(x.Status, x.Count)).ToList()));
+    }
 }

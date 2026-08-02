@@ -1,3 +1,4 @@
+using MerchantService.Domain.Enums;
 using MerchantService.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -36,5 +37,27 @@ public sealed class InternalMerchantsController(MerchantDbContext db, IConfigura
             return NotFound(new { error = "商户不存在" });
 
         return Ok(new { merchantId = merchant.Id, name = merchant.Name, status = (int)merchant.Status });
+    }
+
+    /// <summary>内部商户统计（bi-admin 服务聚合数据源，X-Internal-Key 校验）</summary>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>200 — 商户总数与各状态数量；401 — 内部密钥错误</returns>
+    /// <response code="200">商户统计（total/approved/pending）</response>
+    /// <response code="401">内部密钥错误</response>
+    [HttpGet("stats")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetStats(CancellationToken ct)
+    {
+        if (!KeyValid)
+            return Unauthorized(new { error = "内部密钥无效" });
+
+        var total = await db.Merchants.AsNoTracking().CountAsync(ct);
+        var approved = await db.Merchants.AsNoTracking()
+            .CountAsync(m => m.Status == MerchantStatus.Approved, ct);
+        var pending = await db.Merchants.AsNoTracking()
+            .CountAsync(m => m.Status == MerchantStatus.Pending, ct);
+
+        return Ok(new { total, approved, pending });
     }
 }

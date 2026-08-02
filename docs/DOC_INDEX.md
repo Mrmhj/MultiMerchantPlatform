@@ -56,7 +56,7 @@
 
 | 模块 | 路径 | 状态 | 优先级 |
 |------|------|------|--------|
-| bi-admin | `docs/modules/bi-admin.md` | 📝 待编写 | P3 |
+| bi-admin-service | `docs/modules/bi-admin-service.md` | ✅ 已完成 (v7.0) | P3 (Phase 3 Week 16) |
 
 ### 前端应用
 
@@ -64,7 +64,7 @@
 |------|------|------|------|
 | web-customer | `docs/modules/web-customer.md` | ✅ 已完成 (v5.4) | C端 Web (Vue 3 + Element Plus) |
 | web-merchant | `docs/modules/web-merchant.md` | ✅ 已完成 (v6.1) | 商户端 Web (Vue 3 + Element Plus) |
-| web-admin | `docs/modules/web-admin.md` | 📝 待编写 | 管理后台 (Vue 3 + Element Plus) |
+| web-admin | `docs/modules/web-admin.md` | ✅ 已完成 (v7.0) | 管理后台 BI 看板 (Vue 3 + Element Plus + ECharts) |
 | mobile-app | `docs/modules/mobile-app.md` | ✅ 已完成 (v6.2) | 移动端 uni-app (v4.1改) |
 | desktop-app | `docs/modules/desktop-app.md` | ✅ 已完成 (v6.6) | 桌面端 Electron (v4.1改) |
 

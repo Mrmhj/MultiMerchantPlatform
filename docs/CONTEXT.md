@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v6.6 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
+> 版本对应：v7.0 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
 
 ---
 
@@ -35,6 +35,7 @@
 | **performance-service** | 8017 | MMP_Infra | ✅ v6.3 | 压测（HTTP 并发/HTML 报告）+ 监控（内存/CPU/GC/线程池）+ 告警 |
 | **risk-service** | 8018 | MMP_Risk | ✅ v6.4 | 风控/反刷单（规则引擎/事件上报/决策/黑名单/案例处置） |
 | **notification-service** | 8019 | MMP_Notification | ✅ v6.6 | 通知中心（站内信/短信/Push/模板/公告广播/SignalR 实时推送） |
+| **bi-admin-service** | 8020 | MMP_BI | ✅ v7.0 | BI 分析（跨服务聚合统计/按天销售/商户商品排行/状态分布/总览快照） |
 | messaging-service | 8010 | MMP_Infra | ✅ | 消息总线（Outbox/通配订阅） |
 | logging-service | 8011 | MMP_Infra | ✅ | 日志批量上报/查询/统计 |
 | email-service | 8015 | MMP_Email | ✅ | 邮件（MailKit/DryRun/模板/重试） |
@@ -44,9 +45,11 @@
 前端：`src/apps/web-merchant`（Vue 3.5 + Vite 8 + Element Plus，商户端，端口 5174 dev）
 前端：`src/apps/mobile-app`（uni-app Vue 3，C 端移动商城，H5 端口 5175 dev）
 前端：`src/apps/desktop-app`（Electron 33 + Vue 3.5，商户工作台，渲染端口 5176 dev；公告中心/内部邮件/通知收件箱）
+前端：`src/apps/web-admin`（Vue 3.5 + Vite 8 + Element Plus + ECharts，平台管理后台 BI 看板，端口 5177 dev）
 
 ## 三、当前进度
 
+- **Phase 3 Week 16 已完成**：BI 分析管理平台（提交见 git log）—— bi-admin-service 8020 + web-admin 前端（Vue 3 + ECharts）✅ **Phase 3 全部完成**
 - **Phase 3 Week 15-16 已完成**：desktop-app 桌面端 Electron（提交见 git log）—— 商户工作台（公告中心/内部邮件/通知收件箱，短信/Push 真实网关暂缓仅内部公告+内部邮件）
 - **Phase 3 Week 15 已完成**：notification-service 通知中心 v6.6（提交见 git log）—— 新增公告广播模块（Announcement + AnnouncementRead）
 - **Phase 3 Week 14 已完成**：risk-service 风控/反刷单（提交见 git log）—— 风控规则引擎 ✅
@@ -59,11 +62,11 @@
 - **Phase 2 Week 10-11 已完成**：promotion-service（提交 a83aa99）
 - **Phase 2 Week 10 已完成**：cart-service + search-service（提交 c5512d7）
 - **Phase 1 全部完成**（v4.7-v5.4）：identity → merchant → product → order → pay → stock → 库存联动 → C 端 Web 商城
-- 全量编译 **0 警告 0 错误**（30 项目）；最近提交见 git log
+- 全量编译 **0 警告 0 错误**（31 项目）；最近提交见 git log
 
 ## 四、下一步（按 PROJECT_PLAN.md 路线图）
 
-> **Phase 3 进行中**（performance ✅ → risk ✅ → notification ✅ → Electron ✅ → BI）
+> **Phase 3 全部完成**（performance ✅ → risk ✅ → notification ✅ → Electron ✅ → BI ✅）→ **进入 Phase 4（第 17-19 周：高并发优化 + 压测）**
 
 | 周次 | 任务 | 端口/说明 |
 |---|---|---|
@@ -71,7 +74,8 @@
 | 14 | ~~risk-service（风控/反刷单）~~ | 8018 ✅ |
 | 15 | ~~notification-service（通知中心，v6.6 含公告）~~ | 8019 ✅ |
 | 15-16 | ~~桌面端 Electron（商户工作台）~~ | desktop-app ✅ |
-| 16 | BI 分析管理平台（web-admin + ECharts） | BI 看板 |
+| 16 | ~~BI 分析管理平台（web-admin + ECharts）~~ | 8020 + 5177 ✅ |
+| 17-19 | **Phase 4：高并发优化 + 压测**（缓存/连接池/索引优化/全链路压测） | 见 PROJECT_PLAN |
 
 ## 五、工作流程约定（强制）
 
@@ -107,7 +111,7 @@
 |---|---|
 | 路线图 | `docs/PROJECT_PLAN.md`（v4.1，22 周） |
 | 编码规范 | `docs/architecture/coding-standards.md`（v1.0） |
-| 变更记录 | `docs/CHANGELOG.md`（当前 v5.9） |
+| 变更记录 | `docs/CHANGELOG.md`（当前 v7.0） |
 | 文档索引 | `docs/DOC_INDEX.md` |
 | Token 分析 | `docs/reports/token-usage-analysis.md` |
-| 模块文档 | `docs/modules/<service>.md` × 14 |
+| 模块文档 | `docs/modules/<service>.md` × 16 |

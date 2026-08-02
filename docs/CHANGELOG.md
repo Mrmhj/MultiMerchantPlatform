@@ -1,8 +1,34 @@
 # 变更记录
 
-## [v6.6] - 2026-08-02
+## [v7.0] - 2026-08-02
 
 ### Added
+- **Phase 3 Week 16：BI 分析管理平台（bi-admin-service 8020 + web-admin 前端）**：
+  - **bi-admin-service（8020，MMP_BI 独立库）**：
+    - **跨服务取数**：`BiDataClients` 命名 HttpClient（携带 X-Internal-Key 默认头）拉取 order/merchant/product/identity 内部统计接口
+    - **聚合表**：五类聚合实体 `BiOverview`（总览单行快照）/ `BiDailySales`（按天销售）/ `BiMerchantSales`（商户排行）/ `BiProductSales`（商品排行）/ `BiOrderStatusDist`（状态分布）；`BiSyncService` 事务内整体覆盖（ExecuteDelete + AddRange，幂等）
+    - **看板 API**（admin 角色，网关 `/api/bi/**`）：`GET overview`（GMV/订单/商户/商品/用户 + 同步时间）、`GET sales-trend?days`（1-90 钳制）、`GET merchant-rank?top` / `GET product-rank?top`（1-50 钳制）、`GET order-status`、`POST sync`（502 上游取数失败）
+  - **上游服务补内部统计接口**（X-Internal-Key）：
+    - order-service `GET /api/orders/internal/bi-stats` — 总览 + 按天销售 + 商户排行 + 商品排行 + 状态分布（销售口径：Paid/Shipped/Completed 计入 GMV；商品排行用子查询过滤避免 join+group 翻译失败）
+    - merchant-service `GET /api/merchants/internal/stats`（total/approved/pending）
+    - product-service 新增 `InternalProductsController` `GET /api/products/internal/stats`（total/onSale）
+    - identity-service 新增 `InternalUsersController` `GET /api/users/internal/stats`（total）
+  - **web-admin 平台管理后台**（`src/apps/web-admin`，5177 dev，Vite 代理 → 网关 8000）：Vue 3.5 + Vite 8 + TS + Element Plus + **ECharts 5**；登录（admin）+ BI 看板（指标卡 ×6 / 销售趋势双轴折线 / 商户·商品排行条形 / 状态饼图）；「同步数据」按钮 + 7/30/90 天切换；403 无权限提示
+  - 注册：`MultiMerchantPlatform.slnx` + `AspireHost.AppHost.csproj` + AppHost.cs（8020）+ 网关路由 `/api/bi/**` → 8020
+- 修复：risk-service `SubmitRiskEventsCommandHandler` 未读参数 CS9113 警告（全量编译回 0 警告）
+
+### Verified
+- 全量编译 0 CS 警告 0 错误（31 项目）
+- BI 冒烟 **31/31 通过**：注册提权 → 健康 → 鉴权拦截（无 token 401 / 买家 403）→ 造数（在售商品 → 补库存 → 下单 → 模拟支付）→ 同步 success + 各计数字段 → overview/sales-trend/merchant-rank/product-rank/order-status 字段断言 → 参数钳制
+- 网关 `/api/bi/overview` 转发验证：200 + 真实聚合数据（GMV 693.80 / 订单 11 / 商户 7 / 商品 8）
+- web-admin dev 验证：5177 被占自动转 5178，页面 200 + 标题「多商户商城 - 平台管理后台」
+
+### Notes
+- 网关 `/api/health` 多路由歧义（messaging/logging/risk/notification 并存）为**存量问题**，本次未扩大（bi-admin 不注册 health 网关路由，健康检查直连 8020）
+- BI 销售口径与 order-service `bi-stats` 一致：已付款子单计入 GMV，按天子单创建日（UTC）
+- 冒烟造数遗留订单/支付记录属于正常业务数据（可复用于后续看板展示）；如需重置可用 sqlcmd 清理 MMP_Order/MMP_Pay
+
+---
 - **Phase 3 Week 15-16：桌面端 Electron（desktop-app，商户工作台）**：
   - **工程骨架**：Electron 33 + Vue 3.5 + Vite 8 + TS + Element Plus + Pinia + Vue Router（hash 模式）+ Axios + SignalR；主进程 `electron/main.ts`（BrowserWindow 1280×800 / dev 加载 Vite(5176) / 生产 loadFile dist / 外链走系统浏览器 / contextIsolation + sandbox），preload 最小暴露 `window.desktop.appInfo`；`electron-builder` 打包 Win（nsis）+ Mac（dmg）
   - **平台公告中心**：列表（分类筛选/分页/未读状态）、详情、标记已读、顶栏未读角标；SignalR 新公告实时角标+1

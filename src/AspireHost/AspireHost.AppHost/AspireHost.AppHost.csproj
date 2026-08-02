@@ -8,6 +8,7 @@
     <ProjectReference Include="..\..\services\performance-service\PerformanceService.csproj" />
     <ProjectReference Include="..\..\services\risk-service\RiskService.csproj" />
     <ProjectReference Include="..\..\services\notification-service\NotificationService.csproj" />
+    <ProjectReference Include="..\..\services\bi-admin-service\BiAdminService.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

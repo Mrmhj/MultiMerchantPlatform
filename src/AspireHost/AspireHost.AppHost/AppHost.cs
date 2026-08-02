@@ -31,6 +31,10 @@ var riskService = builder.AddProject<Projects.RiskService>("risk-service")
 var notificationService = builder.AddProject<Projects.NotificationService>("notification-service")
     .WithEndpoint(name: "http", port: 8019, targetPort: 8080);
 
+// Phase 3: BI 分析平台 (port 8020)
+var biAdminService = builder.AddProject<Projects.BiAdminService>("bi-admin-service")
+    .WithEndpoint(name: "http", port: 8020, targetPort: 8080);
+
 // 网关转发基础设施服务接口
 apiGateway.WithReference(messagingService);
 apiGateway.WithReference(loggingService);
@@ -38,6 +42,7 @@ apiGateway.WithReference(emailService);
 apiGateway.WithReference(performanceService);
 apiGateway.WithReference(riskService);
 apiGateway.WithReference(notificationService);
+apiGateway.WithReference(biAdminService);
 
 // ── 核心业务服务 (Phase 1) ──
 // - identity-service (port 8001)

@@ -725,7 +725,7 @@ src/apps/
 | 14 | **risk-service**（风控/反刷单） | 风控规则引擎 ✅ v6.4 |
 | 15 | **notification-service**（通知中心） | 短信/站内信/Push ✅ v6.5；公告广播 ✅ v6.6 |
 | 15-16 | **桌面端 Electron** | 商户工作台可运行 ✅ v6.6 |
-| 16 | **BI 分析管理平台**（Vue 3 + ECharts） | BI 看板 |
+| 16 | **BI 分析管理平台**（Vue 3 + ECharts） | BI 看板 ✅ v7.0（8020 + web-admin 5177） |
 
 ### Phase 4：高并发优化 + 压测（第 17-19 周）
 
