@@ -1,5 +1,28 @@
 # 变更记录
 
+## [v7.4] - 2026-08-02
+
+### Added
+- **本机 IIS 部署完成（Phase 4 Week 20 前置）**：
+  - 环境就绪：IIS 10 + .NET 10 Hosting Bundle（10.0.10，ANCM v2）+ URL Rewrite 2.1 + ARR 3.0（winget 安装）
+  - **21 个后端站点 + 4 个前端站点**全部创建并健康运行（每站点独立应用池，No Managed Code + AlwaysRunning）
+  - 后端：identity/merchant/product/order/pay/stock/cart/search/promotion/messaging/logging/review/logistics/settlement/email/im/performance/risk/notification/bi-admin + gateway —— 全部 `/api/health` 200，核心链路（注册→JWT→商品→订单）验证通过
+  - 前端：web-customer:5173 / web-merchant:5174 / mobile-app:5175 / web-admin:5177 静态部署 + URL Rewrite `/api`、`/hub` 反向代理到网关（ARR 代理）
+  - 部署目录 `E:\IISDeploy\`（services/ + web/）；一键脚本 `scripts/create-iis-sites.ps1`
+- **二期开发计划**：`docs/reports/phase2-development-plan.md`（Phase 4 收尾 + Phase 5 上线四阶段蓝图：压测/部署/运维/灰度）
+- **架构结构文档**：`docs/architecture/system-architecture.md`（服务拓扑/技术栈/横切能力/数据架构/部署形态）
+- **部署指南**：`docs/guides/local-deployment.md`（前置条件/步骤/站点清单/常见问题）
+
+### Fixed
+- IIS 部署排障：500.35（应用池共用 → 每站点独立池）、500.19（mimeMap 重复 → 移除）、404.4（rewrite 无处理器 → 启用 ARR proxy）
+- dotnet publish 输出目录需预建；沙箱环境 Access denied → 删目录重建 + robocopy 兜底
+
+### Notes
+- desktop-app（Electron）为桌面程序，不做 IIS 部署
+- 前端 Swagger 生产环境 404 属正常（仅开发启用）
+- 待办：scripts/start-all.ps1 直跑模式一键启动、Aspire AppHost 补全（21 服务）、Week 19 全量压测
+
+---
 ## [v7.3] - 2026-08-02
 
 ### Added

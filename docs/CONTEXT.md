@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v7.3 · 2026-08-02 · Phase 4 Week 18 缓存优化+分库分表评估完成
+> 版本对应：v7.4 · 2026-08-02 · 本机 IIS 部署完成（21 后端 + 4 前端）
 
 ---
 
@@ -49,6 +49,7 @@
 
 ## 三、当前进度
 
+- **本机 IIS 部署完成（2026-08-02，v7.4）**：25 个 IIS 站点（21 后端 8000-8020 + 4 前端 5173/5174/5175/5177），每站点独立应用池；后端全部 `/api/health` 200，核心链路验证通过；前端 URL Rewrite `/api`、`/hub` 反代到网关（ARR）；部署目录 `E:\IISDeploy\`，一键脚本 `scripts/create-iis-sites.ps1`，指南 docs/guides/local-deployment.md；二期计划 docs/reports/phase2-development-plan.md；架构文档 docs/architecture/system-architecture.md
 - **Phase 4 Week 18 已完成（v7.3）**：缓存策略优化 + 数据库分库分表评估 + 限流熔断 —— ① 网关 RateLimiter 三层链式限流（并发→按 IP 固定窗口→秒杀令牌桶，429 实测 5×200+5×429）② IServiceClient 内置 Polly v8 弹性（重试/熔断/超时，IOptions 配置节化，调用方零改动）③ ICacheService 新增 GetOrAddAsync 防击穿（Redis SETNX 锁/InMemory 信号量双实现）④ product 商品详情/列表 Redis 热数据缓存 + 版本失效、promotion 秒杀活动列表缓存 ⑤ 分库分表评估报告（方案 A 表分区首选）+ docs/database/ 目录落地；冒烟 tests/smoke-week18.sh **14/14 通过**
 - **Phase 4 Week 17 已完成**：秒杀场景实现（缓存预扣 + 异步下单）—— BuildingBlocks.Cache 接 Redis（StackExchange.Redis + 分布式锁 + Lua 原子预扣防超卖）、promotion-service 秒杀模块（SeckillActivity/SeckillRecord + 抢购 + 超时回滚后台任务）、order-service 异步秒杀下单（幂等表 + 消息消费端点）、消息发布器/客户端双修复；冒烟 tests/smoke-seckill.sh **13/13 通过**
 - **Phase 3 Week 16 已完成**：BI 分析管理平台（提交见 git log）—— bi-admin-service 8020 + web-admin 前端（Vue 3 + ECharts）✅ **Phase 3 全部完成**
@@ -68,7 +69,7 @@
 
 ## 四、下一步（按 PROJECT_PLAN.md 路线图）
 
-> **Phase 4（第 17-19 周）进行中**：Week 17 秒杀 ✅（v7.2）→ Week 18 缓存+分库分表 ✅（v7.3）→ **Week 19：performance-service 全量压测 + 瓶颈优化**
+> **Phase 4（第 17-19 周）进行中**：Week 17 秒杀 ✅（v7.2）→ Week 18 缓存+分库分表 ✅（v7.3）→ **Week 19：performance-service 全量压测 + 瓶颈优化**（IIS 部署 v7.4 已提前完成，见 docs/guides/local-deployment.md）
 
 | 周次 | 任务 | 端口/说明 |
 |---|---|---|

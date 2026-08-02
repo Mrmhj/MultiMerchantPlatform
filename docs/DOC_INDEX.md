@@ -7,12 +7,13 @@
 | 文档 | 路径 | 状态 | 说明 |
 |------|------|------|------|
 | 项目方案 | `E:\MultiMerchantPlatform\docs\PROJECT_PLAN.md` | ✅ v4.1 | 总体规划，每次方案调整更新 |
-| 项目上下文 | `E:\MultiMerchantPlatform\docs\CONTEXT.md` | ✅ v5.8 | 会话恢复专用，每阶段更新（新会话整读即恢复） |
+| 项目上下文 | `E:\MultiMerchantPlatform\docs\CONTEXT.md` | ✅ v7.3 | 会话恢复专用，每阶段更新（新会话整读即恢复） |
+| 架构结构 | `E:\MultiMerchantPlatform\docs\architecture\system-architecture.md` | ✅ v7.3 | 当前系统架构结构总览（服务拓扑/技术栈/部署形态） |
 | 架构设计 | `E:\MultiMerchantPlatform\docs\architecture\ARCHITECTURE.md` | 📝 待编写 | 技术架构详细设计 |
 | 编码规范 | `E:\MultiMerchantPlatform\docs\architecture\coding-standards.md` | ✅ v1.0 | 全项目强制规范（含 Phase 1 业务开发规范） |
 | API 规范 | `E:\MultiMerchantPlatform\docs\API_SPEC.md` | 📝 待编写 | 所有微服务 API 接口文档 |
 | 数据库设计 | `E:\MultiMerchantPlatform\docs\DATABASE.md` | 📝 待编写 | 所有数据库表结构设计 |
-| 部署指南 | `E:\MultiMerchantPlatform\docs\DEPLOYMENT.md` | 📝 待编写 | 部署与运维操作指南 |
+| 部署指南 | `E:\MultiMerchantPlatform\docs\guides\local-deployment.md` | ✅ v7.3 | 本机 IIS 部署指南（站点清单/步骤/排障） |
 | 变更记录 | `E:\MultiMerchantPlatform\docs\CHANGELOG.md` | ✅ v6.5 | 每次调整追加记录 |
 | 文档索引 | `E:\MultiMerchantPlatform\docs\DOC_INDEX.md` | ✅ 本文档 | 文档路径汇总 |
 
