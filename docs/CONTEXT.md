@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v7.2 · 2026-08-02 · Phase 4 Week 17 秒杀完成
+> 版本对应：v7.3 · 2026-08-02 · Phase 4 Week 18 缓存优化+分库分表评估完成
 
 ---
 
@@ -21,13 +21,13 @@
 |---|---|---|---|---|
 | identity-service | 8001 | MMP_Identity | ✅ | 注册/登录/JWT/失败锁定 |
 | merchant-service | 8002 | MMP_Merchant | ✅ | 入驻/审核/店铺 + 内部查商户名 |
-| product-service | 8003 | MMP_Product | ✅ | 分类/商品/SKU/上下架 + C 端公开接口 |
+| product-service | 8003 | MMP_Product | ✅ v7.3 | 分类/商品/SKU/上下架 + C 端公开接口（**Redis 热数据缓存**） |
 | order-service | 8004 | MMP_Order | ✅ | 跨商户拆单/状态机/库存联动 |
 | pay-service | 8005 | MMP_Pay | ✅ | 支付单/模拟支付/退款/回调订单 |
 | stock-service | 8006 | MMP_Stock | ✅ | 库存预占/扣减/释放 + 内部接口 |
 | **cart-service** | 8007 | MMP_Cart | ✅ v5.5 | 购物车（买家隔离/同 SKU 合并） |
 | **search-service** | 8008 | MMP_Search | ✅ v5.5 | 商品搜索索引（在售/关键词/价格） |
-| **promotion-service** | 8009 | MMP_Promotion | ✅ v7.2 | 优惠券/满减活动/内部核销 + **秒杀**（Redis 预扣+异步下单） |
+| **promotion-service** | 8009 | MMP_Promotion | ✅ v7.3 | 优惠券/满减活动/内部核销 + **秒杀**（Redis 预扣+异步下单）+ C 端活动列表缓存 |
 | **review-service** | 8012 | MMP_Review | ✅ v5.8 | 商品评价（买家/商户/公开） |
 | **logistics-service** | 8013 | MMP_Logistics | ✅ v5.9 | 物流（运单/轨迹/公司，订单发货联动） |
 | **settlement-service** | 8014 | MMP_Settlement | ✅ v5.9 | 结算（佣金规则/结算单/幂等生成） |
@@ -39,7 +39,7 @@
 | messaging-service | 8010 | MMP_Infra | ✅ | 消息总线（Outbox/通配订阅） |
 | logging-service | 8011 | MMP_Infra | ✅ | 日志批量上报/查询/统计 |
 | email-service | 8015 | MMP_Email | ✅ | 邮件（MailKit/DryRun/模板/重试） |
-| ApiGateway（YARP） | 8000 | — | ✅ | 路由转发 |
+| ApiGateway（YARP） | 8000 | — | ✅ v7.3 | 路由转发 + **入口限流（RateLimiter：并发/固定窗口/令牌桶）** |
 
 前端：`src/apps/web-customer`（Vue 3.5 + Vite 8 + Element Plus，C 端商城，端口 5173 dev）
 前端：`src/apps/web-merchant`（Vue 3.5 + Vite 8 + Element Plus，商户端，端口 5174 dev）
@@ -49,6 +49,7 @@
 
 ## 三、当前进度
 
+- **Phase 4 Week 18 已完成（v7.3）**：缓存策略优化 + 数据库分库分表评估 + 限流熔断 —— ① 网关 RateLimiter 三层链式限流（并发→按 IP 固定窗口→秒杀令牌桶，429 实测 5×200+5×429）② IServiceClient 内置 Polly v8 弹性（重试/熔断/超时，IOptions 配置节化，调用方零改动）③ ICacheService 新增 GetOrAddAsync 防击穿（Redis SETNX 锁/InMemory 信号量双实现）④ product 商品详情/列表 Redis 热数据缓存 + 版本失效、promotion 秒杀活动列表缓存 ⑤ 分库分表评估报告（方案 A 表分区首选）+ docs/database/ 目录落地；冒烟 tests/smoke-week18.sh **14/14 通过**
 - **Phase 4 Week 17 已完成**：秒杀场景实现（缓存预扣 + 异步下单）—— BuildingBlocks.Cache 接 Redis（StackExchange.Redis + 分布式锁 + Lua 原子预扣防超卖）、promotion-service 秒杀模块（SeckillActivity/SeckillRecord + 抢购 + 超时回滚后台任务）、order-service 异步秒杀下单（幂等表 + 消息消费端点）、消息发布器/客户端双修复；冒烟 tests/smoke-seckill.sh **13/13 通过**
 - **Phase 3 Week 16 已完成**：BI 分析管理平台（提交见 git log）—— bi-admin-service 8020 + web-admin 前端（Vue 3 + ECharts）✅ **Phase 3 全部完成**
 - **Phase 3 Week 15-16 已完成**：desktop-app 桌面端 Electron（提交见 git log）—— 商户工作台（公告中心/内部邮件/通知收件箱，短信/Push 真实网关暂缓仅内部公告+内部邮件）
@@ -67,19 +68,20 @@
 
 ## 四、下一步（按 PROJECT_PLAN.md 路线图）
 
-> **Phase 4（第 17-19 周）进行中**：Week 17 秒杀 ✅（v7.2）→ **Week 18：缓存策略优化 + 数据库分库分表**
+> **Phase 4（第 17-19 周）进行中**：Week 17 秒杀 ✅（v7.2）→ Week 18 缓存+分库分表 ✅（v7.3）→ **Week 19：performance-service 全量压测 + 瓶颈优化**
 
 | 周次 | 任务 | 端口/说明 |
 |---|---|---|
 | 17 | ~~秒杀场景实现（缓存预扣 + 异步下单）~~ | ✅ v7.2（Redis + 分布式锁 + 异步下单 + 超时回滚） |
-| 18 | **缓存策略优化 + 数据库分库分表** | 性能提升（商品/订单热数据缓存、读写分离评估） |
+| 18 | ~~缓存策略优化 + 数据库分库分表~~ | ✅ v7.3（Redis 热数据缓存 + 限流熔断 + 分库分表评估报告） |
 | 19 | **performance-service 全量压测 + 瓶颈优化** | 压测报告（reports/） |
 | 20-22 | Phase 5：部署上线（Windows Service / K8s、监控告警、灰度上线） | 见 PROJECT_PLAN |
 
 > **Phase 4 前置（2026-08-02 已落地）**：
 > - **Redis 已部署**：tporadowski 5.0.14.1 Windows 版 `E:\redis-5.0.14\`，Windows 服务 `redis`（自启），0.0.0.0+[::]:6379（防火墙已放行），密码 `MMP-Redis-PUctKhVRIFB48kmfI6Ek`；局域网 192.168.1.4 / 公网 IPv6 2409:8a62:...（动态）/ **公网 IPv4 36.170.45.77 为移动 CGNAT 不可直连（需内网穿透）**；详见 `docs/guides/redis-setup.md`
 > - **涉密信息规范（红线）**：本地 `appsettings.json`/`.env*` 一律不入库，仅提交 `appsettings.Example.json` 模板（占位符 `__DB_PASSWORD__`/`__JWT_SECRET__`/`__INTERNAL_KEY__`）；JWT SecretKey 与 Internal Key 已轮换新值（旧值曾入 GitHub 历史）；见 coding-standards.md 第十一节
-> - BuildingBlocks.Cache 已入库 Redis 实现（ICacheService/RedisDistributedLock + StackExchange.Redis 2.8.16），连接串格式 `host:port,password=xxx`
+> - BuildingBlocks.Cache 已入库 Redis 实现（ICacheService/RedisDistributedLock + StackExchange.Redis 2.8.16），连接串格式 `host:port,password=xxx`；**v7.3 新增 GetOrAddAsync 防击穿 + 网关限流 + Polly 弹性**
+> - **限流注意**：FixedWindow QueueLimit 生产配置 20（排队不悬挂）；设 0 则超限立即 429。秒杀 buy / 压测接口走令牌桶（2000/60s）
 
 ## 五、工作流程约定（强制）
 
@@ -111,6 +113,11 @@
 - **GitHub release 下载**：直连极慢 → 查 Gitee 镜像仓库 release 附件；curl 报 23 write error = 后台残留 curl 占用同一目标文件 → Stop-Process 清理；PowerShell Invoke-WebRequest 更稳
 - **tporadowski redis-server**：服务注册不支持 `--service-port`；Start-Process 起的进程随会话退出，长驻必须注册 Windows 服务
 - **涉密治理**：本地配置模板化（appsettings.Example.json），提交前 `git diff --cached` 扫描敏感值
+- **.NET 10 RateLimiter API 变化**：`PartitionedRateLimiter.Create<TResource,TPartitionKey>` 仅接收**返回 `RateLimitPartition` 的 partitioner 单参数**（旧版 partitionKey+factory 双参签名已移除）；分区器直接返回 `RateLimitPartition.GetFixedWindowLimiter/GetTokenBucketLimiter(...)`
+- **限流队列悬挂**：FixedWindowRateLimiter QueueLimit>0 时超限请求排队等窗口刷新（最长一个窗口），短超时客户端表现为连接超时（000）而非 429 → 网关语义用 QueueLimit=0 立即拒绝
+- **Redis 5.0.14 redis-cli 不支持 `--scan`**：查键用 `KEYS "pattern"`（开发环境可接受；生产禁 KEYS 用 SCAN 游标）
+- **Polly v8 OnRetry 签名**：回调返回 `ValueTask`（`args.Outcome.Result?.Dispose()` 后必须 `return ValueTask.CompletedTask`）
+- **服务主程序 DLL 命名**：`{ServiceName}.dll`（identity-service → IdentityService.dll，去掉 `-service` 后缀），启动脚本/文档注意
 
 ## 七、关键文档索引
 

@@ -52,4 +52,20 @@ public interface ICacheService
     /// <param name="ct">取消令牌</param>
     /// <returns>是否扣减成功（库存足够）</returns>
     Task<bool> TryDeductAsync(string key, long delta, CancellationToken ct = default);
+
+    /// <summary>
+    /// 读取缓存；未命中时执行 factory 重建并写入（single-flight 防击穿：并发请求只放行一个回源）。
+    /// 典型用法：热数据缓存（商品详情/列表、秒杀活动等读多写少场景）。
+    /// </summary>
+    /// <typeparam name="T">值类型</typeparam>
+    /// <param name="key">缓存键</param>
+    /// <param name="factory">回源工厂（缓存未命中时执行，负责查库/计算）</param>
+    /// <param name="expiry">缓存过期时间（默认 60 秒）</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>缓存值或 factory 计算结果</returns>
+    Task<T?> GetOrAddAsync<T>(
+        string key,
+        Func<CancellationToken, Task<T?>> factory,
+        TimeSpan? expiry = null,
+        CancellationToken ct = default);
 }

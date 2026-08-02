@@ -1,5 +1,27 @@
 # 变更记录
 
+## [v7.3] - 2026-08-02
+
+### Added
+- **Phase 4 Week 18：缓存策略优化 + 数据库分库分表评估 + 限流熔断**：
+  - **网关入口限流（.NET RateLimiter）**：ApiGateway 接入 `Microsoft.AspNetCore.RateLimiting`（零依赖），三层链式 GlobalLimiter —— 全局并发控制（500）→ 按 IP 固定窗口（120/60s，普通 API）→ 令牌桶（秒杀 `seckills/buy`、压测 `benchmarks` 突发接口 2000/1000·60s）；配置节 `RateLimit` 化（appsettings.json + Example 模板同步）；429 统一 JSON + Retry-After；已实测验证：配额 5 下连发 10 次 = 5×200 + 5×429 精确限流
+  - **服务间调用 Polly v8 弹性**：BuildingBlocks.Communication `HttpServiceClient` 内置 `ResiliencePipeline<HttpResponseMessage>`（重试：瞬时故障/408/429/5xx 指数退避+抖动 3 次；熔断：失败率 50%/10s 窗口/15s 断路；超时：单次尝试 10s）；失败响应 OnRetry 主动 Dispose 防连接泄漏；`IOptions<ResilienceOptions>` 配置节化（`Resilience` 节，`AddServiceClientResilience` 扩展注册，不调用用默认值）；`IServiceClient` 接口与 `AddServiceClient` 签名完全兼容，调用方零改动
+  - **缓存策略优化（热数据缓存）**：
+    - `ICacheService` 新增 `GetOrAddAsync<T>`（single-flight 防击穿）：Redis 实现用 SETNX 回源锁 + double-check + Lua 释放 + 等待者轮询兜底回源；InMemory 实现用 per-key SemaphoreSlim + double-check + 空闲信号量清理；默认 TTL 60s
+    - **product-service 接入 Redis 缓存**：C 端商品详情 `product:public:detail:{id}`（TTL 5min）；C 端商品列表 `product:public:list:v{ver}:{page}:{size}`（TTL 30s + 版本号整体失效）；写操作（创建/更新/上下架）主动失效 —— `ProductCacheInvalidation`：详情键 Remove + 列表版本 `Increment`；新增 `ProductCacheKeys` 键规范
+    - **promotion-service 秒杀列表缓存**：C 端进行中秒杀 `seckill:active:list`（TTL 10s，活动启停主动失效）
+  - 冒烟脚本 `tests/smoke-week18.sh`（14 项断言全过：缓存键写入/更新失效/版本自增/网关转发/秒杀列表缓存）
+
+### Changed
+- product-service `ProductService.csproj` 新增 BuildingBlocks.Cache 引用；DI 注册 `AddCacheService`（`Cache:UseRedis` 配置节）+ `AddServiceClientResilience`
+- 新增文档：`docs/reports/db-sharding-evaluation.md`（分库分表评估：方案 A 表分区为首选/方案 B 应用层分表/方案 C 读写分离，落地路线）、`docs/database/database-catalog.md`（18 库表清单 + 分区建议）、`docs/database/sharding-partition-templates.sql`（按月分区 DDL 模板）
+- 全量编译 0 错误（NU1900 为沙箱 NuGet 缓存环境警告，非代码警告）
+
+### Notes
+- **限流配置注意**：FixedWindow `QueueLimit` 保持 0 时超限立即 429（不悬挂）；当前生产配置 20（排队 20 个，curl 短超时下表现为连接超时而非 429，属预期）
+- 待办（Phase 4 Week 18 后续）：① 一键启动脚本 `scripts/start-all.ps1` + 部署文档 `docs/guides/local-deployment.md`；② Aspire AppHost 服务注册补全；③ Week 19 performance-service 全量压测（基于本报告基线）→ 数据量达标后启动表分区 DDL
+
+---
 ## [v7.2] - 2026-08-02
 
 ### Added

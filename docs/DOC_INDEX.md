@@ -74,6 +74,15 @@
 |------|------|------|
 | 压测报告 | `docs/reports/loadtest-*.html` | performance-service 自动生成 |
 | 分析报告 | `docs/reports/analysis-*.html` | BI 平台导出 |
+| 分库分表评估 | `docs/reports/db-sharding-evaluation.md` | Phase 4 Week 18：表分区/分表/读写分离方案对比与路线 |
+| Token 分析 | `docs/reports/token-usage-analysis.md` | 上下文占用分析 |
+
+### 数据库
+
+| 类型 | 路径 | 说明 |
+|------|------|------|
+| 库表总览 | `docs/database/database-catalog.md` | 18 库核心表清单 + 增长特征 + 分区建议 |
+| 分区模板 | `docs/database/sharding-partition-templates.sql` | 按月滑动窗口分区 DDL 模板 |
 
 ---
 

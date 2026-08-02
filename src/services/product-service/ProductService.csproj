@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Core\BuildingBlocks.Core.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Cache\BuildingBlocks.Cache.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Data\BuildingBlocks.Data.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Communication\BuildingBlocks.Communication.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Security\BuildingBlocks.Security.csproj" />

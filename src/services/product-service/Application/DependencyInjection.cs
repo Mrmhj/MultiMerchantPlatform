@@ -1,3 +1,4 @@
+using BuildingBlocks.Cache;
 using BuildingBlocks.Communication;
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.MultiTenant;
@@ -26,6 +27,14 @@ public static class ProductServiceDependencyInjection
         var connectionString = configuration.GetConnectionString("ProductDb")
             ?? throw new InvalidOperationException("缺少连接字符串: ConnectionStrings:ProductDb");
         services.AddDbContext<ProductDbContext>(o => o.UseSqlServer(connectionString));
+
+        // 缓存（Redis/In-Memory 切换，热数据缓存：C 端商品详情/列表）
+        var useRedis = configuration.GetValue<bool>("Cache:UseRedis");
+        var redisConnection = configuration.GetValue<string>("Cache:RedisConnection");
+        services.AddCacheService(useRedis, redisConnection);
+
+        // 服务间调用弹性配置（Polly 重试/熔断/超时，配置节 Resilience）
+        services.AddServiceClientResilience(configuration);
 
         // 多租户（X-Merchant-Id 请求头）与当前用户
         services.TryAddSingleton(TimeProvider.System);

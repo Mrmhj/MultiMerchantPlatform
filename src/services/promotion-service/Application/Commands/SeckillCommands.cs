@@ -79,6 +79,9 @@ public sealed class ChangeSeckillStatusCommandHandler(
             await cache.RemoveAsync(SeckillCacheKeys.StockKey(activity.Id), ct);
         }
 
+        // 活动启停影响 C 端进行中列表 → 主动失效
+        await cache.RemoveAsync(SeckillCacheKeys.ActiveListKey, ct);
+
         await db.SaveChangesAsync(ct);
         return PromotionMapper.ToSeckillResponse(activity, now);
     }
@@ -215,4 +218,7 @@ public static class SeckillCacheKeys
 
     /// <summary>秒杀活动分布式锁键</summary>
     public static string LockKey(Guid activityId) => $"seckill:lock:{activityId}";
+
+    /// <summary>C 端进行中秒杀列表键（活动启停时失效）</summary>
+    public static string ActiveListKey => "seckill:active:list";
 }

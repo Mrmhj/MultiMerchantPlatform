@@ -1,3 +1,4 @@
+using BuildingBlocks.Cache;
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Core.Exceptions;
 using BuildingBlocks.MultiTenant;
@@ -24,6 +25,7 @@ public sealed class CreateProductCommandHandler(
     ITenantProvider tenantProvider,
     SearchServiceClient searchClient,
     MerchantServiceClient merchantClient,
+    ICacheService cache,
     ILogger<CreateProductCommandHandler> logger) : ICommandHandler<CreateProductCommand, ProductResponse>
 {
     /// <inheritdoc />
@@ -45,6 +47,9 @@ public sealed class CreateProductCommandHandler(
         db.Products.Add(product);
         await db.SaveChangesAsync(ct);
 
+        // 新商品上架会影响 C 端列表 → 列表版本自增，整体失效
+        await ProductCacheInvalidation.InvalidateProductListCacheAsync(cache, ct);
+
         await SearchIndexSyncHelper.SyncAsync(db, searchClient, merchantClient, product, logger, ct);
         return ProductMapper.ToResponse(product);
     }
@@ -64,6 +69,7 @@ public sealed class UpdateProductCommandHandler(
     ITenantProvider tenantProvider,
     SearchServiceClient searchClient,
     MerchantServiceClient merchantClient,
+    ICacheService cache,
     ILogger<UpdateProductCommandHandler> logger) : ICommandHandler<UpdateProductCommand, ProductResponse>
 {
     /// <inheritdoc />
@@ -89,6 +95,9 @@ public sealed class UpdateProductCommandHandler(
         product.UpdateInfo(command.Name, command.CategoryId, command.Description, command.CoverImage);
         await db.SaveChangesAsync(ct);
 
+        // 更新商品 → 详情缓存失效 + 列表版本自增
+        await ProductCacheInvalidation.InvalidateProductCachesAsync(cache, product.Id, ct);
+
         await SearchIndexSyncHelper.SyncAsync(db, searchClient, merchantClient, product, logger, ct);
         return ProductMapper.ToResponse(product);
     }
@@ -103,6 +112,7 @@ public sealed class UpdateProductStatusCommandHandler(
     ITenantProvider tenantProvider,
     SearchServiceClient searchClient,
     MerchantServiceClient merchantClient,
+    ICacheService cache,
     ILogger<UpdateProductStatusCommandHandler> logger) : ICommandHandler<UpdateProductStatusCommand, ProductResponse>
 {
     /// <inheritdoc />
@@ -132,9 +142,32 @@ public sealed class UpdateProductStatusCommandHandler(
 
         await db.SaveChangesAsync(ct);
 
+        // 上下架影响可见性 → 详情缓存失效 + 列表版本自增
+        await ProductCacheInvalidation.InvalidateProductCachesAsync(cache, product.Id, ct);
+
         await SearchIndexSyncHelper.SyncAsync(db, searchClient, merchantClient, product, logger, ct);
         return ProductMapper.ToResponse(product);
     }
+}
+
+/// <summary>商品写操作缓存失效辅助</summary>
+internal static class ProductCacheInvalidation
+{
+    /// <summary>商品详情缓存失效 + C 端列表版本自增（整体失效）</summary>
+    /// <param name="cache">缓存服务</param>
+    /// <param name="productId">商品 ID</param>
+    /// <param name="ct">取消令牌</param>
+    public static async Task InvalidateProductCachesAsync(ICacheService cache, Guid productId, CancellationToken ct)
+    {
+        await cache.RemoveAsync(ProductCacheKeys.Detail(productId), ct);
+        await cache.IncrementAsync(ProductCacheKeys.ListVersionKey, 1, ct);
+    }
+
+    /// <summary>C 端列表版本自增（仅影响列表，用于创建商品）</summary>
+    /// <param name="cache">缓存服务</param>
+    /// <param name="ct">取消令牌</param>
+    public static async Task InvalidateProductListCacheAsync(ICacheService cache, CancellationToken ct)
+        => await cache.IncrementAsync(ProductCacheKeys.ListVersionKey, 1, ct);
 }
 
 /// <summary>

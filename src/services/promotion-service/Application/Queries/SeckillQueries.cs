@@ -1,7 +1,9 @@
+using BuildingBlocks.Cache;
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Core.Exceptions;
 using BuildingBlocks.Core.Results;
 using BuildingBlocks.MultiTenant;
+using PromotionService.Application.Commands;
 using PromotionService.Domain.Enums;
 using PromotionService.DTOs;
 using PromotionService.Infrastructure.Persistence;
@@ -90,26 +92,35 @@ public sealed class GetSeckillQueryHandler(
     }
 }
 
-/// <summary>进行中秒杀活动查询（C 端公开，仅 Active 且时间窗口内）</summary>
+/// <summary>进行中秒杀活动查询（C 端公开，仅 Active 且时间窗口内；短 TTL 缓存防抖）</summary>
 public sealed record ActiveSeckillsQuery : IQuery<List<SeckillResponse>>;
 
-/// <summary>进行中秒杀活动查询处理器</summary>
+/// <summary>进行中秒杀活动查询处理器（缓存 10s，活动启停时主动失效）</summary>
 public sealed class ActiveSeckillsQueryHandler(
     PromotionDbContext db,
-    TimeProvider timeProvider) : IQueryHandler<ActiveSeckillsQuery, List<SeckillResponse>>
+    TimeProvider timeProvider,
+    ICacheService cache) : IQueryHandler<ActiveSeckillsQuery, List<SeckillResponse>>
 {
+    /// <summary>进行中秒杀列表缓存 TTL（活动启停主动失效，TTL 仅兜底）</summary>
+    private static readonly TimeSpan CacheTtl = TimeSpan.FromSeconds(10);
+
     /// <inheritdoc />
     public async Task<List<SeckillResponse>> HandleAsync(ActiveSeckillsQuery query, CancellationToken ct = default)
     {
         var now = timeProvider.GetUtcNow().UtcDateTime;
 
-        var activities = await db.SeckillActivities.AsNoTracking()
-            .Where(a => a.Status == SeckillStatus.Active
-                        && a.StartTime <= now && a.EndTime >= now)
-            .OrderByDescending(a => a.StartTime)
-            .ToListAsync(ct);
+        var activities = await cache.GetOrAddAsync(SeckillCacheKeys.ActiveListKey, async token =>
+        {
+            var list = await db.SeckillActivities.AsNoTracking()
+                .Where(a => a.Status == SeckillStatus.Active
+                            && a.StartTime <= now && a.EndTime >= now)
+                .OrderByDescending(a => a.StartTime)
+                .ToListAsync(token);
 
-        return activities.Select(a => PromotionMapper.ToSeckillResponse(a, now)).ToList();
+            return list.Select(a => PromotionMapper.ToSeckillResponse(a, now)).ToList();
+        }, CacheTtl, ct);
+
+        return activities ?? [];
     }
 }
 

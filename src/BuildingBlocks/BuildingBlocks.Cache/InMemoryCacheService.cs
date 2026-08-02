@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace BuildingBlocks.Cache;
@@ -10,6 +11,12 @@ public sealed class InMemoryCacheService(IMemoryCache cache) : ICacheService
 {
     private readonly IMemoryCache _cache = cache;
     private readonly object _lock = new();
+
+    /// <summary>回源锁表（single-flight 防击穿，每键一个信号量）</summary>
+    private readonly ConcurrentDictionary<string, SemaphoreSlim> _backfillLocks = new();
+
+    /// <summary>GetOrAddAsync 默认缓存 TTL（未显式指定时）</summary>
+    private static readonly TimeSpan DefaultExpiry = TimeSpan.FromSeconds(60);
 
     /// <inheritdoc />
     public Task<T?> GetAsync<T>(string key, CancellationToken ct = default)
@@ -64,6 +71,40 @@ public sealed class InMemoryCacheService(IMemoryCache cache) : ICacheService
 
             _cache.Set(key, current - delta);
             return Task.FromResult(true);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<T?> GetOrAddAsync<T>(
+        string key,
+        Func<CancellationToken, Task<T?>> factory,
+        TimeSpan? expiry = null,
+        CancellationToken ct = default)
+    {
+        // 快路径：缓存命中直接返回
+        if (_cache.TryGetValue(key, out T? cached))
+            return cached;
+
+        // 慢路径：per-key 信号量 single-flight（仅一个请求回源）
+        var gate = _backfillLocks.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
+        await gate.WaitAsync(ct);
+        try
+        {
+            // 拿到锁后二次检查（double-check）：可能在等待期间已被写入
+            if (_cache.TryGetValue(key, out T? rechecked))
+                return rechecked;
+
+            var result = await factory(ct);
+            if (result is not null)
+                await SetAsync(key, result, expiry ?? DefaultExpiry, ct);
+            return result;
+        }
+        finally
+        {
+            gate.Release();
+            // 清理空闲信号量（避免键表无限增长）
+            if (gate.CurrentCount == 1)
+                _backfillLocks.TryRemove(key, out _);
         }
     }
 }
