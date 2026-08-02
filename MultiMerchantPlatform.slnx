@@ -32,6 +32,7 @@
     <Project Path="src/services/product-service/ProductService.csproj" />
     <Project Path="src/services/promotion-service/PromotionService.csproj" />
     <Project Path="src/services/review-service/ReviewService.csproj" />
+    <Project Path="src/services/risk-service/RiskService.csproj" />
     <Project Path="src/services/search-service/SearchService.csproj" />
     <Project Path="src/services/settlement-service/SettlementService.csproj" />
     <Project Path="src/services/stock-service/StockService.csproj" />

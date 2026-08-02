@@ -1,5 +1,30 @@
 # 变更记录
 
+## [v6.4] - 2026-08-02
+
+### Added
+- **Phase 3 Week 14：risk-service（8018 风控/反刷单）**：
+  - **规则引擎**（RiskRuleEngine）：按「场景 + 维度（用户/IP/设备/商户）+ 时间窗口」聚合统计，超过阈值即命中；事件先入库（未保存）后内存批计数 + 库内窗口历史计数合并，批量同键不遗漏；库内计数按维度分支内联 EF 可翻译表达式
+  - **命中策略**：同规则 + 同维度键 + 窗口内未处置案例已存在 → 追加 OccurredCount（不重复建单）；否则新建 Open 案例；黑名单命中生成 `BLACKLIST` 来源 Block 案例（10 分钟同键去重）
+  - **内部接口**（X-Internal-Key）：`POST /api/risk/internal/events` 批量事件上报 + 实时评估（返回 Submitted/Hits/Cases/Blocked）；`POST /api/risk/internal/decide` 风控决策（黑名单 + 未处置 Block 案例 → 拦截，否则放行）—— 供 order/promotion/identity/review 等业务服务接入
+  - **平台管理**（admin 角色）：规则 CRUD/启停、案例状态机（Open→Reviewing→Resolved/FalsePositive）、黑名单（用户/IP/设备，支持过期时间与商户维度，同对象唯一防重复拉黑）、事件流水分页、概览统计
+  - **默认规则种子**（幂等）：5 条反刷单典型规则（高频下单同用户 Watch/同 IP Block、高频领券、高频登录失败 Block、高频评价）
+  - **数据模型**：MMP_Risk 独立库 4 张表（RiskRules / RiskEvents 只追加带 4 组窗口统计复合索引 / RiskCases 含规则与对象快照 / BlacklistEntries），充血实体 + 状态机
+  - 分层：Mediator + CQRS 强制；网关 `/api/risk/**` 路由 + AspireHost 编排接入 + slnx 29 项目
+  - 新增模块文档 `docs/modules/risk-service.md`；冒烟脚本 `tests/smoke-risk.sh`
+
+### Verified
+- 全量编译 0 CS 警告 0 错误（29 项目，含 AspireHost；仅环境性 NU1900 NuGet 缓存权限警告）
+- risk 冒烟 **36/36 通过**：鉴权拦截（401/403/内部密钥）→ 规则 CRUD（默认种子/创建/更新/启停/校验 400）→ 同 IP 30s 3 次阈值命中 Block 案例（事件 1/2 无命中、事件 3 hits=1）→ 决策拦截与放行 → 案例复核/确认/误报 → 黑名单（加入/拦截/停用放行/更新/移除）→ 事件流水 + 概览
+- 冒烟数据已清理（MMP_Risk 仅保留 5 条默认规则）
+
+### Notes
+- EF 表达式树坑：自定义静态方法（`IsExpired`/维度匹配）不能直接用于 EF 查询谓词 → 必须内联为可翻译表达式或按枚举分支写多个查询
+- 冒烟维度键每次运行必须唯一（时间戳生成 GUID 末段）——固定 IP/用户会在窗口内残留历史事件污染统计
+- `is ... or ...` 模式匹配不能用于 EF 表达式树 → 改用 `== || ==` 等值比较
+
+---
+
 ## [v6.3] - 2026-08-02
 
 ### Added

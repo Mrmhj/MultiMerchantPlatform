@@ -23,11 +23,16 @@ var emailService = builder.AddProject<Projects.EmailService>("email-service")
 var performanceService = builder.AddProject<Projects.PerformanceService>("performance-service")
     .WithEndpoint(name: "http", port: 8017, targetPort: 8080);
 
+// Phase 3: 风控/反刷单 (port 8018)
+var riskService = builder.AddProject<Projects.RiskService>("risk-service")
+    .WithEndpoint(name: "http", port: 8018, targetPort: 8080);
+
 // 网关转发基础设施服务接口
 apiGateway.WithReference(messagingService);
 apiGateway.WithReference(loggingService);
 apiGateway.WithReference(emailService);
 apiGateway.WithReference(performanceService);
+apiGateway.WithReference(riskService);
 
 // ── 核心业务服务 (Phase 1) ──
 // - identity-service (port 8001)

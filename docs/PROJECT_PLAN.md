@@ -258,8 +258,8 @@ E:\MultiMerchantPlatform\
 | **P1** | settlement-service | 佣金计算/结算分账 | 8014 |
 | **P1** | email-service | 邮件发送/接收 **(v4新增)** | 8015 |
 | **P2** | im-service | 即时通讯 **(v4新增)** ✅ v6.0 | 8016 |
-| **P2** | performance-service | 压测+内存监控 **(v4新增)** | 8017 |
-| **P2** | risk-service | 风控/反刷单 | 8018 |
+| **P2** | performance-service | 压测+内存监控 **(v4新增)** ✅ v6.3 | 8017 |
+| **P2** | risk-service | 风控/反刷单 ✅ v6.4 | 8018 |
 | **P2** | notification-service | 通知中心（短信/站内信/Push） | 8019 |
 | **P3** | bi-admin | BI 分析管理平台 | 8020 |
 | — | api-gateway | YARP 网关 | 8000 |
@@ -722,7 +722,7 @@ src/apps/
 | 周 | 任务 | 产出 |
 |----|------|------|
 | 14 | **performance-service**（压测+内存监控） | 监控看板可用 ✅ v6.3 |
-| 14 | risk-service（风控/反刷单） | 风控规则引擎 |
+| 14 | **risk-service**（风控/反刷单） | 风控规则引擎 ✅ v6.4 |
 | 15 | notification-service（通知中心） | 短信/站内信/Push |
 | 15-16 | **桌面端 Electron** | 桌面应用可运行 |
 | 16 | **BI 分析管理平台**（Vue 3 + ECharts） | BI 看板 |

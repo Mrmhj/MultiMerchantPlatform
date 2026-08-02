@@ -2,7 +2,7 @@
 
 > **用途**：新会话开始时**整读本文件**即可恢复项目上下文（不必翻历史对话）。
 > **维护**：每个阶段（服务）交付后必须同步更新本文件的「当前进度」与「下一步」。
-> 版本对应：v6.3 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
+> 版本对应：v6.4 · 2026-08-02 · 提交（见 git log）· 工作区已提交干净
 
 ---
 
@@ -15,7 +15,7 @@
 - 多租户：商户维度 `X-Merchant-Id` 头 + `MultiTenantEntity` + `HasQueryFilter` + Handler 显式过滤
 - 服务间内部调用：`X-Internal-Key`（MMP-Internal-Key-2026）
 
-## 二、服务清单（11 服务 + 网关）
+## 二、服务清单（12 服务 + 网关）
 
 | 服务 | 端口 | 数据库 | 状态 | 说明 |
 |---|---|---|---|---|
@@ -33,6 +33,7 @@
 | **settlement-service** | 8014 | MMP_Settlement | ✅ v5.9 | 结算（佣金规则/结算单/幂等生成） |
 | **im-service** | 8016 | MMP_IM | ✅ v6.0 | 即时通讯（SignalR：私聊/客服群/已读/离线补推/内部推送） |
 | **performance-service** | 8017 | MMP_Infra | ✅ v6.3 | 压测（HTTP 并发/HTML 报告）+ 监控（内存/CPU/GC/线程池）+ 告警 |
+| **risk-service** | 8018 | MMP_Risk | ✅ v6.4 | 风控/反刷单（规则引擎/事件上报/决策/黑名单/案例处置） |
 | messaging-service | 8010 | MMP_Infra | ✅ | 消息总线（Outbox/通配订阅） |
 | logging-service | 8011 | MMP_Infra | ✅ | 日志批量上报/查询/统计 |
 | email-service | 8015 | MMP_Email | ✅ | 邮件（MailKit/DryRun/模板/重试） |
@@ -44,7 +45,8 @@
 
 ## 三、当前进度
 
-- **Phase 3 Week 14 已完成**：performance-service 压测+内存监控（提交见 git log）—— Phase 3 首个服务
+- **Phase 3 Week 14 已完成**：risk-service 风控/反刷单（提交见 git log）—— 风控规则引擎 ✅
+- **Phase 3 Week 14 已完成**：performance-service 压测+内存监控（提交见 git log）
 - **Phase 2 Week 13 已完成**：mobile-app 移动端骨架（提交见 git log）—— **Phase 2 全部完成**
 - **Phase 2 Week 12-13 已完成**：web-merchant 商户端 Web 前端（提交见 git log）
 - **Phase 2 Week 12 已完成**：im-service（提交见 git log）
@@ -57,12 +59,12 @@
 
 ## 四、下一步（按 PROJECT_PLAN.md 路线图）
 
-> **Phase 3 进行中**（performance-service ✅ → risk-service → notification-service → Electron → BI）
+> **Phase 3 进行中**（performance-service ✅ → risk-service ✅ → notification-service → Electron → BI）
 
 | 周次 | 任务 | 端口/说明 |
 |---|---|---|
 | 14 | ~~performance-service（压测+内存监控）~~ | 8017 ✅ |
-| 14 | risk-service（风控/反刷单） | 8018 |
+| 14 | ~~risk-service（风控/反刷单）~~ | 8018 ✅ |
 | 15 | notification-service（通知中心） | 8019 |
 | 15-16 | 桌面端 Electron | 桌面应用可运行 |
 | 16 | BI 分析管理平台（web-admin + ECharts） | BI 看板 |
@@ -87,6 +89,9 @@
 - **EF 子实体误判 UPDATE**：充血模型下新建子实体（客户端 Guid 主键）经导航集合添加被推断为 Unchanged → 0 行并发异常 → 必须显式 `db.Set<T>().Add()` 标记 Added
 - 内部接口 `[FromHeader] string key`（非空引用类型）在 [ApiController] 下缺头自动 400（与错误密钥 401 语义一致，系统统一行为）
 - 测试/演示后停服务进程（PowerShell `Get-NetTCPConnection -LocalPort` 批量停）；**运行中服务锁定 bin/Release/*.dll，重编译前先停**
+- **EF 表达式树禁用自定义方法**：`IsExpired()`/维度匹配等静态方法不能用于查询谓词 → 内联可翻译表达式或按枚举分支写多个查询
+- **EF 表达式树禁用 `is ... or ...` 模式匹配** → 改用 `== || ==` 等值比较
+- **冒烟维度键必须每次运行唯一**（时间戳生成 GUID 末段）：固定 IP/用户会在窗口内残留历史事件污染统计
 
 ## 七、关键文档索引
 

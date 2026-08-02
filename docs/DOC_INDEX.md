@@ -49,7 +49,7 @@
 | 模块 | 路径 | 状态 | 优先级 |
 |------|------|------|--------|
 | performance-service | `docs/modules/performance-service.md` | ✅ 已完成 (v6.3) | P2 (Phase 3 Week 14) |
-| risk-service | `docs/modules/risk-service.md` | 📝 待编写 | P2 |
+| risk-service | `docs/modules/risk-service.md` | ✅ 已完成 (v6.4) | P2 (Phase 3 Week 14) |
 | notification-service | `docs/modules/notification-service.md` | 📝 待编写 | P2 |
 
 ### P3 分析平台
